@@ -1,4 +1,4 @@
-#include <../include/input_buffer.h>
+#include "../include/input_buffer.h"
 
 
 InputBuffer* new_input_buffer() {
@@ -70,7 +70,11 @@ ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
                 new_command = false;
                 print_prompt(new_command);
             }
-            ptr[i++] = ' '; // Ставим пробелы, чтобы можно было потом удобнее спарсить значения. 
+            if (i > 1)
+            {
+
+                ptr[i++] = ' '; // Ставим пробелы, чтобы можно было потом удобнее спарсить значения. 
+            }
             continue;
         }
 

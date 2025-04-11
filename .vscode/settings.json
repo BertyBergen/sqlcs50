@@ -1,5 +1,11 @@
 {
   "files.associations": {
-    "input_buffer.h": "c"
+    "input_buffer.h": "c",
+    "string.h": "c",
+    "execute.h": "c",
+    "stdio.h": "c",
+    "meta_commands.h": "c",
+    "statement.h": "c",
+    "table.h": "c"
   }
 }
