@@ -3,6 +3,10 @@
 
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
+    if (input_buffer == NULL) {
+        // Обработка ошибки, например, завершение программы
+        exit(1); 
+    }
     input_buffer->buffer = NULL;
     input_buffer->buffer_length = 0;
     input_buffer->input_length = 0;
@@ -12,7 +16,7 @@ InputBuffer* new_input_buffer() {
 void print_prompt(bool new_command) {
 
     if (new_command) {
-        printf("sqlcs50> ");
+        printf("sqlcs50 > ");
     } else {
         printf("   ...> ");
     }

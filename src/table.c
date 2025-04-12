@@ -1,6 +1,5 @@
 #include "../include/table.h"
 
-
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
 const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);
 const uint32_t EMAIL_SIZE = size_of_attribute(Row, email);
@@ -11,7 +10,7 @@ const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES; // What pages is?  
 
 
 void serialize_row(Row* source, void* destination) {
@@ -47,12 +46,10 @@ Table* new_table() {
 }
 
 void free_table(Table* table) {
-    for (int i = 0; table->pages[i]; i++) {
+    // for (int i = 0; table->pages[i]; i++) { 
+    //Цикл прерывается, если table->pages[i] == NULL. Но это не значит, что дальше страниц нет — просто одна из них может не использоваться.Если, скажем, у тебя были страницы в pages[0], pages[2], а pages[1] не была аллоцирована (NULL), то pages[2] не будет освобождена.
+    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         free(table->pages[i]);
     }
     free(table);
-}
-
-void print_row(Row* row) {
-    printf("(%d, %s, %s)\n", row->id, row->username, row->email);
 }

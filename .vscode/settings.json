@@ -1,11 +1,75 @@
 {
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.showExecutionMessage": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "vscode-edge-devtools.webhintInstallNotification": true,
+  "git.openRepositoryInParentFolders": "never",
+  "explorer.confirmDragAndDrop": false,
+  "prettier.singleQuote": true,
+  "prettier.tabWidth": 2,
+  "files.exclude": {
+    "**/.git": false
+  },
+  "gitlens.currentLine.enabled": false,
+  "gitlens.gitCommands.skipConfirmations": [
+    "fetch:command",
+    "stash-push:command",
+    "switch:command"
+  ],
+  "files.autoGuessEncoding": true,
+  "editor.tabSize": 4,
+  "liveServer.settings.donotVerifyTags": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.quickSuggestions": {
+    "comments": "on",
+    "strings": "on"
+  },
+  "workbench.colorTheme": "Dracula Theme Soft",
+  "git.enableSmartCommit": true,
+
+  "[python]": {
+    "editor.tabSize": 4
+  },
+
+  "[javascript]": {
+    "editor.tabSize": 2
+  },
+  "json.schemas": [],
+  "terminal.integrated.profiles.windows": {
+    "MSYS2": {
+      "path": "C:\\msys64\\usr\\bin\\bash.exe"
+    }
+    // "Command Prompt": {
+    //   "path": "C:\\Windows\\System32\\cmd.exe"
+    // },
+    // "PowerShell": {
+    //   "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    // },
+    // "Git Bash": {
+    //   "path": "C:\\Program Files\\Git\\bin\\bash.exe"
+    // }
+  },
+  "terminal.integrated.defaultProfile.windows": "MSYS2",
+  "terminal.integrated.env.windows": {
+    "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}"
+  },
+  "liveServer.settings.donotShowInfoMsg": true,
+  "makefile.configureOnOpen": true,
+  "cmake.additionalCompilerSearchDirs": [
+    "C:/msys64/mingw32/bin",
+    "C:/msys64/mingw64/bin",
+    "C:/msys64/clang32/bin",
+    "C:/msys64/clang64/bin",
+    "C:/msys64/clangarm64/bin",
+    "C:/msys64/ucrt64/bin"
+  ],
   "files.associations": {
-    "input_buffer.h": "c",
-    "string.h": "c",
-    "execute.h": "c",
-    "stdio.h": "c",
-    "meta_commands.h": "c",
-    "statement.h": "c",
     "table.h": "c"
   }
 }
