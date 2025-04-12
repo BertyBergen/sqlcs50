@@ -78,25 +78,25 @@ class TestDatabase(unittest.TestCase):
             "sqlcs50 >",
         ])
 
-    # def test_prints_error_message_if_strings_are_too_long(self):
-    #     long_username = "a" * 33
-    #     long_email = "a" * 256
-    #     script = [
-    #         f"insert 1 {long_username} {long_email};",
-    #         "select;",
-    #         ".exit;",
-    #     ]
-    #     result = self.run_script(script)
-    #     self.assertIn("sqlcs50 > String is too long.", result)
+    def test_prints_error_message_if_strings_are_too_long(self):
+        long_username = "a" * 33
+        long_email = "a" * 256
+        script = [
+            f"insert 1 {long_username} {long_email};",
+            "select;",
+            ".exit;",
+        ]
+        result = self.run_script(script)
+        self.assertIn("sqlcs50 > String is too long.", result)
 
-    # def test_prints_error_message_if_id_is_negative(self):
-    #     script = [
-    #         "insert -1 cstack foo@bar.com;",
-    #         "select;",
-    #         ".exit;",
-    #     ]
-    #     result = self.run_script(script)
-    #     self.assertIn("sqlcs50 > ID must be positive.", result)
+    def test_prints_error_message_if_id_is_negative(self):
+        script = [
+            "insert -1 cstack foo@bar.com;",
+            "select;",
+            ".exit;",
+        ]
+        result = self.run_script(script)
+        self.assertIn("sqlcs50 > ID must be positive.", result)
 
 if __name__ == "__main__":
     unittest.main()
