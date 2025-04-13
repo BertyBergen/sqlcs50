@@ -70,6 +70,13 @@
     "C:/msys64/ucrt64/bin"
   ],
   "files.associations": {
-    "table.h": "c"
+    "table.h": "c",
+    "execute.h": "c",
+    "string.h": "c",
+    "stdio.h": "c",
+    "stdlib.h": "c",
+    "stdbool.h": "c",
+    "input_buffer.h": "c",
+    "stdint.h": "c"
   }
 }

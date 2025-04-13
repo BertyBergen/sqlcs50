@@ -1,4 +1,12 @@
 #include "../include/table.h"
+#include <fcntl.h> 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h> 
+#include <sys/stat.h> 
+#include <unistd.h>  
 
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
 const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);

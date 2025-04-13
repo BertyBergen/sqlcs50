@@ -1,9 +1,9 @@
 #ifndef INPUT_BUFFER_H
 #define INPUT_BUFFER_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdint.h>
 
 // Структура для хранения буфера ввода
 typedef struct {

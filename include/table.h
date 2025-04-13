@@ -1,14 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <fcntl.h> 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/types.h> 
-#include <sys/stat.h> 
-#include <unistd.h>  
 
 #define COLUMN_USERNAME_SIZE 32 
 #define COLUMN_EMAIL_SIZE 255 

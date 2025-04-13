@@ -1,7 +1,7 @@
+
+#include "../include/execute.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "../include/execute.h"
 
 ExecuteResult execute_insert(Statement* statement, Table* table) 
 {

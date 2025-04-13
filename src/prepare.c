@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../include/prepare.h"
 #include "../include/input_buffer.h"

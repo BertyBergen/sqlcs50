@@ -1,5 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "../include/input_buffer.h"
-
 
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
@@ -16,7 +17,7 @@ InputBuffer* new_input_buffer() {
 void print_prompt(bool new_command) {
 
     if (new_command) {
-        printf("sqlcs50 > ");
+        printf("sqlcs50> ");
     } else {
         printf("   ...> ");
     }

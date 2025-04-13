@@ -4,6 +4,7 @@
 #include "input_buffer.h"
 #include "statement.h"
 
+
 typedef enum {
     PREPARE_SUCCESS,
     PREPARE_STRING_TOO_LONG,
