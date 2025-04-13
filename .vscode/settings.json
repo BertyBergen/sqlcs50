@@ -77,6 +77,8 @@
     "stdlib.h": "c",
     "stdbool.h": "c",
     "input_buffer.h": "c",
-    "stdint.h": "c"
+    "stdint.h": "c",
+    "cursor.h": "c",
+    "statement.h": "c"
   }
 }

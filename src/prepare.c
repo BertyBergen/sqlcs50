@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/prepare.h"
-#include "../include/input_buffer.h"
-#include "../include/prepare.h"
 
 PrepareResult prepare_insert(InputBuffer* input_buffer, Statement* statement) { // Сделать свой парсер. Потом уже
     statement->type = STATEMENT_INSERT;

@@ -3,8 +3,7 @@
 #include "statement.h"
 #include "table.h"
 
-
-#include <string.h>
+#include "cursor.h"
 
 typedef enum { 
     EXECUTE_SUCCESS, 

@@ -45,7 +45,6 @@ void *get_page(Pager *pager, uint32_t page_num);
 void pager_flush(Pager* pager, uint32_t page_num, uint32_t size);
 void serialize_row(Row* source, void* destination);
 void deserialize_row(void *source, Row* destination);
-void* row_slot(Table* table, uint32_t row_num);
 void print_row(Row* row);
 void db_close(Table* table) ;
 

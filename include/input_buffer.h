@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdint.h>
 
 // Структура для хранения буфера ввода
 typedef struct {

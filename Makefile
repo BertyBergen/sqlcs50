@@ -8,10 +8,10 @@ CFLAGS = -Wall -Wextra -pedantic -std=c99
 INCLUDES = -I./include
 
 # Исходники
-SRC = src/main.c src/input_buffer.c src/meta_commands.c src/execute.c src/prepare.c src/table.c
+SRC = src/main.c src/input_buffer.c src/meta_commands.c src/execute.c src/prepare.c src/table.c src/cursor.c
 
 # Объектные файлы
-OBJ = main.o src/input_buffer.o src/meta_commands.o src/execute.o src/prepare.o src/table.o
+OBJ = main.o src/input_buffer.o src/meta_commands.o src/execute.o src/prepare.o src/table.o src/cursor.o
 
 # Имя исполняемого файла
 TARGET = qwe

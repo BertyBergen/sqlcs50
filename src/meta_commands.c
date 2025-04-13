@@ -1,7 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "../include/meta_commands.h"
+#include <string.h>
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer, Table* table) 
 {
