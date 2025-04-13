@@ -1,3 +1,13 @@
+# VSCode settings
 .vscode/c_cpp_properties.json
-.vscode/setting.json
+.vscode/settings.json
+
+# Build files
+*.o
+*.exe
+*.out
+*.log
+*.tmp
+
+# DB
 mydb.db
