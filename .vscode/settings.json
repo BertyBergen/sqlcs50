@@ -79,6 +79,8 @@
     "input_buffer.h": "c",
     "stdint.h": "c",
     "cursor.h": "c",
-    "statement.h": "c"
+    "statement.h": "c",
+    "row.h": "c",
+    "pager.h": "c"
   }
 }

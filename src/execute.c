@@ -45,7 +45,3 @@ ExecuteResult execute_statement(Statement* statement, Table *table)
     }
 }
 
-void print_row(Row* row) 
-{
-    printf("(%d, %s, %s)\n", row->id, row->username, row->email);
-}

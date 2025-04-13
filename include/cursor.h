@@ -1,8 +1,9 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
-#include <stdbool.h>
 #include "table.h"
+#include <stdbool.h>
+
 
 typedef struct {
     Table *table;
