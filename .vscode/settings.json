@@ -81,6 +81,9 @@
     "cursor.h": "c",
     "statement.h": "c",
     "row.h": "c",
-    "pager.h": "c"
+    "pager.h": "c",
+    "cstdlib": "c",
+    "prepare.h": "c",
+    "meta_commands.h": "c"
   }
 }
