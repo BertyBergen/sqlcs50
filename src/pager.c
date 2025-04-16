@@ -80,7 +80,6 @@ void *get_page(Pager *pager, uint32_t page_num)
     return pager->pages[page_num];
 }
 
-// void pager_flush(Pager* pager, uint32_t page_num, uint32_t size)
 void pager_flush(Pager* pager, uint32_t page_num) 
 {
     if (pager->pages[page_num] == NULL) {

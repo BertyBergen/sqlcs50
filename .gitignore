@@ -1,6 +1,5 @@
 # VSCode settings
-.vscode/c_cpp_properties.json
-.vscode/settings.json
+.vscode/
 
 # Build files
 *.o

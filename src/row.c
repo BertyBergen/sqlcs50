@@ -4,13 +4,7 @@
 #include "../include/row.h"
 #include "../include/table.h"
 
-#define COLUMN_USERNAME_SIZE 32 
-#define COLUMN_EMAIL_SIZE 255 
-#define PAGE_SIZE 4096  // Paging: Разделяем всё хранилище на блоки фиксированного размера (страницы), например 4096 байт.
-#define TABLE_MAX_PAGES 100 //pages[] — массив указателей на эти блоки. Загружаем их по мере необходимости.
-
-
-#define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
+// struct Table;
 
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
 const uint32_t USERNAME_SIZE = size_of_attribute(Row, username);
@@ -68,7 +62,7 @@ void deserialize_row(void *source, Row* destination)
 // Возвращает указатель на количество ячеек в листовом узле
 uint32_t* leaf_node_num_cells(void* node) 
 {
-    return (uint32_t*)(node + LEAF_NODE_NUM_CELLS_OFFSET);
+    return node + LEAF_NODE_NUM_CELLS_OFFSET;
 }
 
 // Возвращает указатель на начало ячейки с номером cell_num
@@ -95,28 +89,32 @@ void initialize_leaf_node(void* node)
     *leaf_node_num_cells(node) = 0;
 }
 
+// Вставка нового узла в упорядоченный массив внутри листа
+void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value) 
+{
+    void* node = get_page(cursor->table->pager, cursor->page_num);
 
-void leaf_node_insert(Cursor* cursor, uint32_t key, Row* value) {
-  void* node = get_page(cursor->table->pager, cursor->page_num);
-
-  uint32_t num_cells = *leaf_node_num_cells(node);
-  if (num_cells >= LEAF_NODE_MAX_CELLS) {
-    // Node full
-    printf("Need to implement splitting a leaf node.\n");
-    exit(EXIT_FAILURE);
-  }
-
-  if (cursor->cell_num < num_cells) {
-    // Make room for new cell
-    for (uint32_t i = num_cells; i > cursor->cell_num; i--) {
-      memcpy(leaf_node_cell(node, i), leaf_node_cell(node, i - 1),
-             LEAF_NODE_CELL_SIZE);
+    uint32_t num_cells = *leaf_node_num_cells(node);
+    if (num_cells >= LEAF_NODE_MAX_CELLS) 
+    {
+        // Node full
+        printf("Need to implement splitting a leaf node.\n");
+        exit(EXIT_FAILURE);
     }
-  }
 
-  *(leaf_node_num_cells(node)) += 1;
-  *(leaf_node_key(node, cursor->cell_num)) = key;
-  serialize_row(value, leaf_node_value(node, cursor->cell_num));
+    if (cursor->cell_num < num_cells) 
+    {
+        // Make room for new cell
+        for (uint32_t i = num_cells; i > cursor->cell_num; i--) 
+        {
+            memcpy(leaf_node_cell(node, i), leaf_node_cell(node, i - 1),
+                    LEAF_NODE_CELL_SIZE);
+        }
+    }
+
+    *(leaf_node_num_cells(node)) += 1;
+    *(leaf_node_key(node, cursor->cell_num)) = key;
+    serialize_row(value, leaf_node_value(node, cursor->cell_num));
 }
 
 void print_row(Row* row) 
@@ -138,7 +136,8 @@ void print_leaf_node(void* node)
 {
     uint32_t num_cells = *leaf_node_num_cells(node);
     printf("leaf (size %d)\n", num_cells);
-    for (uint32_t i = 0; i < num_cells; i++) {
+    for (uint32_t i = 0; i < num_cells; i++) 
+    {
       uint32_t key = *leaf_node_key(node, i);
       printf("  - %d : %d\n", i, key);
     }

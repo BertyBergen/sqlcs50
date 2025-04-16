@@ -34,7 +34,7 @@ Cursor *table_end(struct Table *table)
     return cursor;
 }
 
-void* cursor_value(Cursor* cursor)
+void* cursor_value(Cursor *cursor)
 {
     // uint32_t row_num = cursor->row_num;
     // uint32_t page_num = row_num / ROWS_PER_PAGE;
@@ -55,7 +55,7 @@ void cursor_advance(Cursor *cursor)
     //     cursor->end_of_table = true;
     // }
     uint32_t page_num = cursor->page_num;
-    void* node = get_page(cursor->table->pager, page_num);
+    void *node = get_page(cursor->table->pager, page_num);
 
     cursor->cell_num += 1;
     if (cursor->cell_num >= (*leaf_node_num_cells(node))) 
