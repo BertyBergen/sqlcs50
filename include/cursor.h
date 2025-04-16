@@ -17,7 +17,8 @@ typedef struct {
 
 
 Cursor *table_start(struct Table *table);
-Cursor *table_end(struct Table *table);
+Cursor* table_find(struct Table* table, uint32_t key);
+Cursor* leaf_node_find(struct Table* table, uint32_t page_num, uint32_t key);
 void* cursor_value(Cursor* cursor);
 void cursor_advance(Cursor* cursor);
 

@@ -84,6 +84,7 @@
     "pager.h": "c",
     "cstdlib": "c",
     "prepare.h": "c",
-    "meta_commands.h": "c"
+    "meta_commands.h": "c",
+    "constants.h": "c"
   }
 }

@@ -61,5 +61,7 @@ void initialize_leaf_node(void* node);
 void print_row(Row* row);
 void print_constants();
 void print_leaf_node(void* node);
+void set_node_type(void* node, NodeType type);
+NodeType get_node_type(void* node);
 
 #endif
