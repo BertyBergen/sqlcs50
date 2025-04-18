@@ -2,7 +2,7 @@
 #define PAGER_H
 
 #include <stdint.h>
-#include "row.h"
+#include "row.h" 
 #include "constants.h"
 
 typedef struct {
@@ -16,5 +16,7 @@ typedef struct {
 Pager *pager_open(const char *filename);
 void *get_page(Pager *pager, uint32_t page_num);
 void pager_flush(Pager* pager, uint32_t page_num);
+uint32_t get_unused_page_num(Pager* pager);
+void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level);
 
 #endif
