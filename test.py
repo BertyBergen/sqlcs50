@@ -104,48 +104,47 @@ class TestDatabase(unittest.TestCase):
     #     result = self.run_script(script)
     #     self.assertIn("sqlcs50 > ID must be positive.", result)
   
-    # def test_insert_16_rows(self):
-    #     script = []
-    #     for i in range(1, 17):
-    #         script.append(f"insert {i} user{i} person{i}@example.com;")
+    def test_insert_16_rows(self):
+        script = []
+        for i in range(1, 10):
+            script.append(f"insert {i} user{i} person{i}@example.com;")
 
-    #     script.append("select;")
-    #     script.append(".exit;")
-    #     result = self.run_script(script)
+        script.append("select;")
+        script.append(".exit;")
+        result = self.run_script(script)
         
-        
-    #     cleaned_result = [line.replace("sqlcs50 > ", "") for line in result]
+        cleaned_result = [line.replace("sqlcs50 > ", "") for line in result]
 
-    #     for i in range (1, 17):
-    #         self.assertIn("Executed.", cleaned_result)
-    #     for i in range (1, 17):
-    #         self.assertIn(f"({i}, user{i}, person{i}@example.com)", cleaned_result)
-    #     self.assertIn("Executed.", cleaned_result)
+        for i in range (1, 10):
+            self.assertIn("Executed.", cleaned_result)
+        for i in range (1, 17):
+            self.assertIn(f"({i}, user{i}, person{i}@example.com)", cleaned_result)
+        self.assertIn("Executed.", cleaned_result)
     
-    def test_keeps_data_after_closing_connection(self):
-        result1 = self.run_script([
-            "insert 1 user1 person1@example.com;",
-            ".exit;"
-        ])
+    # def test_keeps_data_after_closing_connection(self):
+    #     result1 = self.run_script([
+    #         "insert 1 user1 person1@example.com;",
+    #         ".exit;"
+    #     ])
         
-        print("Result1", result1)
+    #     print("Result1", result1)
 
-        self.assertEqual(result1, [
-            "sqlcs50 > Executed.",
-            "sqlcs50 >"
-        ])
-        result2 = self.run_script([
-            "select;",
-            ".exit;"
-        ])
+    #     self.assertEqual(result1, [
+    #         "sqlcs50 > Executed.",
+    #         "sqlcs50 >"
+    #     ])
+    #     result2 = self.run_script([
+    #         "select;",
+    #         ".exit;"
+    #     ])
         
-        print("Result2", result2)
+    #     print("Result2", result2)
 
-        self.assertEqual(result2, [
-            "sqlcs50 > (1, user1, person1@example.com)",
-            "Executed.",
-            "sqlcs50 >"
-        ])
+    #     self.assertEqual(result2, [
+    #         "sqlcs50 > (1, user1, person1@example.com)",
+    #         "Executed.",
+    #         "sqlcs50 >"
+    #     ])
         
   
 

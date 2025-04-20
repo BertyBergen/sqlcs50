@@ -3,11 +3,9 @@
 
 #include <stdint.h>
 #include "pager.h"
-// #include "row.h"
 
 typedef struct Table {
     Pager *pager;
-    // uint32_t num_rows;
     uint32_t root_page_num;
 } Table;
 

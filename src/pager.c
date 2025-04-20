@@ -9,9 +9,9 @@
 #include "../include/pager.h"
 
 
-Pager *pager_open(const char *filename) // open(filename, flags, mode) возвращает дескриптор файла
+Pager *pager_open(const char *filename) 
 {
-    int fd = open(filename,
+    int fd = open(filename,         // open(filename, flags, mode) возвращает дескриптор файла
                     O_RDWR |        //Read/Write mode flag
                         O_CREAT,    // Create file if it doesn't exist flag
                     S_IWUSR |       // User write permission mode

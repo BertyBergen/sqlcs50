@@ -184,7 +184,6 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
     Insert the new value in one of the two nodes.
     Update parent or create a new parent.
     */
-
     void* old_node = get_page(cursor->table->pager, cursor->page_num);
     uint32_t new_page_num = get_unused_page_num(cursor->table->pager);
     void* new_node = get_page(cursor->table->pager, new_page_num);
@@ -196,36 +195,37 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
     */
     for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) 
     {
-       void* destination_node;
-       if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) 
-       {
-         destination_node = new_node;
-       } else {
-         destination_node = old_node;
-       }
-       uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;
-       void* destination = leaf_node_cell(destination_node, index_within_node);
-       if (i == cursor->cell_num) {
-         serialize_row(value, destination);
-       } else if (i > cursor->cell_num) 
-       {
-         memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
-       } else 
-       {
-         memcpy(destination, leaf_node_cell(old_node, i), LEAF_NODE_CELL_SIZE);
-       }
-     }
+        void* destination_node;
+
+        if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) 
+        {
+            destination_node = new_node;
+        } else {
+            destination_node = old_node;
+        }
+        uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;
+        void* destination = leaf_node_cell(destination_node, index_within_node);
+        if (i == cursor->cell_num) {
+            serialize_row(value, destination);
+        } else if (i > cursor->cell_num) 
+        {
+            memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
+        } else 
+        {
+            memcpy(destination, leaf_node_cell(old_node, i), LEAF_NODE_CELL_SIZE);
+        }
+    }
     /* Update cell count on both leaf nodes */
     *(leaf_node_num_cells(old_node)) = LEAF_NODE_LEFT_SPLIT_COUNT;
     *(leaf_node_num_cells(new_node)) = LEAF_NODE_RIGHT_SPLIT_COUNT;
     if (is_node_root(old_node)) 
     {
-            return create_new_root(cursor->table, new_page_num);
+        return create_new_root(cursor->table, new_page_num);
     } 
     else 
     {
-            printf("Need to implement updating parent after split\n");
-            exit(EXIT_FAILURE);
+        printf("Need to implement updating parent after split\n");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -302,19 +302,20 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     Re-initialize root page to contain the new root node.
     New root node points to two children.
     */
-    void* root = get_page(table->pager, table->root_page_num);
-    void* right_child = get_page(table->pager, right_child_page_num);
+    void* root = get_page(table->pager, table->root_page_num); //Получаем указатель на текущий корневой узел.
+    void* right_child = get_page(table->pager, right_child_page_num); // Получаем указатель на правого ребёнка, который получился в результате сплита.
     uint32_t left_child_page_num = get_unused_page_num(table->pager);
-    void* left_child = get_page(table->pager, left_child_page_num);
+    // Выделяем новую страницу для левого ребёнка, куда мы скопируем старый корень.
+    void* left_child = get_page(table->pager, left_child_page_num); 
     /* Left child has data copied from old root */
-    memcpy(left_child, root, PAGE_SIZE);
-    set_node_root(left_child, false);
+    memcpy(left_child, root, PAGE_SIZE); // Копируем старый корень  в левого ребенка.
+    set_node_root(left_child, false); // Отмечаем, что он больше не корень.
     /* Root node is a new internal node with one key and two children */
-    initialize_internal_node(root);
-    set_node_root(root, true);
-    *internal_node_num_keys(root) = 1;
-    *internal_node_child(root, 0) = left_child_page_num;
-    uint32_t left_child_max_key = get_node_max_key(left_child);
-    *internal_node_key(root, 0) = left_child_max_key;
-    *internal_node_right_child(root) = right_child_page_num;
+    initialize_internal_node(root); // Инициализируем текущую страницу root как новый внутренний узел (internal node).
+    set_node_root(root, true); // Обозначаем его как новый корень.
+    *internal_node_num_keys(root) = 1; // У нового корня только один ключ.
+    *internal_node_child(root, 0) = left_child_page_num; // Первый ребёнок нового корня — это левый узел (старый корень).
+    uint32_t left_child_max_key = get_node_max_key(left_child); // Извлекаем максимальный ключ из левого узла и записываем его в корень.
+    *internal_node_key(root, 0) = left_child_max_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
+    *internal_node_right_child(root) = right_child_page_num; // Устанавливаем правого ребёнка корня — это тот узел, что получился из сплита.
 }
