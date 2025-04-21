@@ -147,3 +147,14 @@ void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level)
             break;
     }
 }
+
+uint32_t get_node_max_key(Pager *pager, void* node) 
+{
+    switch (get_node_type(node)) 
+    {
+        case NODE_INTERNAL:
+            return *internal_node_key(node, *internal_node_num_keys(node) - 1);
+        case NODE_LEAF:
+            return *leaf_node_key(node, *leaf_node_num_cells(node) - 1);
+    }
+}
