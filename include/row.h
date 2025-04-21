@@ -38,6 +38,8 @@ extern const uint8_t COMMON_NODE_HEADER_SIZE;
 
 extern const uint32_t LEAF_NODE_NUM_CELLS_SIZE;
 extern const uint32_t LEAF_NODE_NUM_CELLS_OFFSET;
+extern const uint32_t LEAF_NODE_NEXT_LEAF_SIZE;
+extern const uint32_t LEAF_NODE_NEXT_LEAF_OFFSET; 
 extern const uint32_t LEAF_NODE_HEADER_SIZE;
 
 extern const uint32_t LEAF_NODE_KEY_SIZE;
@@ -54,6 +56,8 @@ void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);
 
 uint32_t *leaf_node_num_cells(void *node);
+uint32_t* leaf_node_next_leaf(void* node);
+
 void *leaf_node_cell(void *node, uint32_t cell_num);
 uint32_t *leaf_node_key(void *node, uint32_t cell_num);
 void *leaf_node_value(void *node, uint32_t cell_num);

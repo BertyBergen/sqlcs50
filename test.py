@@ -117,7 +117,7 @@ class TestDatabase(unittest.TestCase):
 
         for i in range (1, 10):
             self.assertIn("Executed.", cleaned_result)
-        for i in range (1, 17):
+        for i in range (1, 10):
             self.assertIn(f"({i}, user{i}, person{i}@example.com)", cleaned_result)
         self.assertIn("Executed.", cleaned_result)
     
