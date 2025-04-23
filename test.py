@@ -106,7 +106,7 @@ class TestDatabase(unittest.TestCase):
   
     def test_insert_16_rows(self):
         script = []
-        for i in range(1, 10):
+        for i in range(1, 11):
             script.append(f"insert {i} user{i} person{i}@example.com;")
 
         script.append("select;")
@@ -115,9 +115,9 @@ class TestDatabase(unittest.TestCase):
         
         cleaned_result = [line.replace("sqlcs50 > ", "") for line in result]
 
-        for i in range (1, 10):
+        for i in range (1, 30):
             self.assertIn("Executed.", cleaned_result)
-        for i in range (1, 10):
+        for i in range (1, 30):
             self.assertIn(f"({i}, user{i}, person{i}@example.com)", cleaned_result)
         self.assertIn("Executed.", cleaned_result)
     

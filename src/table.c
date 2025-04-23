@@ -28,27 +28,31 @@ void db_close(Table* table)
 {
     Pager* pager = table->pager;
 
-    for (uint32_t i = 0; i < pager->num_pages; i++) {
-        if (pager->pages[i] == NULL) {
-        continue;
+    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) 
+    {
+        if (pager->pages[i] == NULL) 
+        {
+            continue;
         }
-        // pager_flush(pager, i, PAGE_SIZE);
         pager_flush(pager, i);
         free(pager->pages[i]);
         pager->pages[i] = NULL;
     }
 
     int result = close(pager->file_descriptor);
-    if (result == -1) {
+    if (result == -1) 
+    {
         printf("Error closing db file.\n");
         exit(EXIT_FAILURE);
     }
 
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) { // Освобождаем указатель, нужно делать всегда
+    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) // Освобождаем указатель, нужно делать всегда
+    { 
         void* page = pager->pages[i];
-        if (page) {
-        free(page);
-        pager->pages[i] = NULL;
+        if (page) 
+        {
+            free(page);
+            pager->pages[i] = NULL;
         }
     }
 

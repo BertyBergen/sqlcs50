@@ -95,7 +95,6 @@ void pager_flush(Pager* pager, uint32_t page_num)
     }
   
     ssize_t bytes_written =
-        // write(pager->file_descriptor, pager->pages[page_num], size);
         write(pager->file_descriptor, pager->pages[page_num], PAGE_SIZE);
   
     if (bytes_written == -1) {
@@ -134,27 +133,29 @@ void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level)
             num_keys = *internal_node_num_keys(node);
             indent(indentation_level);
             printf("- internal (size %d)\n", num_keys);
-            for (uint32_t i = 0; i < num_keys; i++) 
+            if (num_keys > 0) 
             {
-                child = *internal_node_child(node, i);
-                print_tree(pager, child, indentation_level + 1);
+                for (uint32_t i = 0; i < num_keys; i++) 
+                {
+                    child = *internal_node_child(node, i);
+                    print_tree(pager, child, indentation_level + 1);
                 
-                indent(indentation_level + 1);
-                printf("- key %d\n", *internal_node_key(node, i));
+                    indent(indentation_level + 1);
+                    printf("- key %d\n", *internal_node_key(node, i));
+                }
+                child = *internal_node_right_child(node);
+                print_tree(pager, child, indentation_level + 1);
             }
-            child = *internal_node_right_child(node);
-            print_tree(pager, child, indentation_level + 1);
             break;
     }
 }
 
-uint32_t get_node_max_key(Pager *pager, void* node) 
+uint32_t get_node_max_key(Pager* pager, void* node) 
 {
-    switch (get_node_type(node)) 
+    if (get_node_type(node) == NODE_LEAF) 
     {
-        case NODE_INTERNAL:
-            return *internal_node_key(node, *internal_node_num_keys(node) - 1);
-        case NODE_LEAF:
-            return *leaf_node_key(node, *leaf_node_num_cells(node) - 1);
+        return *leaf_node_key(node, *leaf_node_num_cells(node) - 1);
     }
+    void* right_child = get_page(pager,*internal_node_right_child(node));
+    return get_node_max_key(pager, right_child);
 }

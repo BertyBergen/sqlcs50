@@ -15,7 +15,7 @@ const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES; // What pages is? It's a cluster of memory cells  
+const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES; // What pages is? It's a cluster of memory cells
 
 //Common Node Header Layout
 const uint32_t NODE_TYPE_SIZE = sizeof(uint8_t); 
@@ -189,7 +189,7 @@ void set_node_type(void* node, NodeType type)
     *((uint8_t*)(node + NODE_TYPE_OFFSET)) = value;
 }
 
-uint32_t* node_parent(void* node) 
+uint32_t* node_parent(void *node) 
 { 
     return node + PARENT_POINTER_OFFSET; 
 }
@@ -282,12 +282,25 @@ uint32_t* internal_node_child(void* node, uint32_t child_num)
     {
     printf("Tried to access child_num %d > num_keys %d\n", child_num, num_keys);
     exit(EXIT_FAILURE);
-    } else if (child_num == num_keys) 
+    } 
+    else if (child_num == num_keys) 
     {
-    return internal_node_right_child(node);
-    } else 
+        uint32_t* right_child = internal_node_right_child(node);
+        if (*right_child == INVALID_PAGE_NUM) 
+        {
+            printf("Tried to access right child of node, but was invalid page\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else 
     {
-    return internal_node_cell(node, child_num);
+        uint32_t* child = internal_node_cell(node, child_num);
+        if (*child == INVALID_PAGE_NUM) 
+        {
+            printf("Tried to access child %d of node, but was invalid page\n", child_num);
+            exit(EXIT_FAILURE);
+        }
+    return child;
     }
 }
 
@@ -318,6 +331,12 @@ void initialize_internal_node(void* node)
     set_node_type(node, NODE_INTERNAL);
     set_node_root(node, false);
     *internal_node_num_keys(node) = 0;
+    /*
+    Necessary because the root page number is 0; by not initializing an internal 
+    node's right child to an invalid page number when initializing the node, we may
+    end up with 0 as the node's right child, which makes the node a parent of the root
+    */
+    *internal_node_right_child(node) = INVALID_PAGE_NUM;
 }
 
 void create_new_root(struct Table *table, uint32_t right_child_page_num) 
@@ -334,9 +353,26 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     uint32_t left_child_page_num = get_unused_page_num(table->pager);
     // Выделяем новую страницу для левого ребёнка, куда мы скопируем старый корень.
     void* left_child = get_page(table->pager, left_child_page_num); 
+    if (get_node_type(root) == NODE_INTERNAL) 
+    {
+        initialize_internal_node(right_child);
+        initialize_internal_node(left_child);
+    }
     /* Left child has data copied from old root */
     memcpy(left_child, root, PAGE_SIZE); // Копируем старый корень  в левого ребенка.
     set_node_root(left_child, false); // Отмечаем, что он больше не корень.
+    if (get_node_type(left_child) == NODE_INTERNAL) 
+    {
+        void* child;
+        for (int i = 0; i < *internal_node_num_keys(left_child); i++) 
+        {
+            child = get_page(table->pager, *internal_node_child(left_child,i));
+            *node_parent(child) = left_child_page_num;
+        }
+        child = get_page(table->pager, *internal_node_right_child(left_child));
+        *node_parent(child) = left_child_page_num;
+    }
+
     /* Root node is a new internal node with one key and two children */
     initialize_internal_node(root); // Инициализируем текущую страницу root как новый внутренний узел (internal node).
     set_node_root(root, true); // Обозначаем его как новый корень.
@@ -348,4 +384,3 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     *node_parent(left_child) = table->root_page_num;
     *node_parent(right_child) = table->root_page_num;
 }
-
