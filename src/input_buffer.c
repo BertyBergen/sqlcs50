@@ -42,10 +42,12 @@ void close_input_buffer(InputBuffer* input_buffer) {
 }
 
 ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
-    if (*lineptr == NULL) {
+    if (*lineptr == NULL) 
+    {
         *n = 128;  // Начальный размер буфера
         *lineptr = malloc(*n);
-        if (*lineptr == NULL) {
+        if (*lineptr == NULL) 
+        {
             return -1;  // Ошибка выделения памяти
         }
     }

@@ -28,7 +28,7 @@ void db_close(Table* table)
 {
     Pager* pager = table->pager;
 
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) 
+    for (uint32_t i = 0; i < pager->num_pages; i++) 
     {
         if (pager->pages[i] == NULL) 
         {

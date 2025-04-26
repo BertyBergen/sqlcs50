@@ -164,30 +164,30 @@ void internal_node_insert(Table* table, uint32_t parent_page_num, uint32_t child
     and immediately calling internal_node_split_and_insert has the effect
     of creating a new key at (max_cells + 1) with an uninitialized value
     */
+   
     *internal_node_num_keys(parent) = original_num_keys + 1;
 
     if (child_max_key > get_node_max_key(table->pager, right_child)) 
     {
         /* Replace right child */
         *internal_node_child(parent, original_num_keys) = right_child_page_num;
-        *internal_node_key(parent, original_num_keys) =
-        get_node_max_key(table->pager, right_child);
+        *internal_node_key(parent, original_num_keys) = get_node_max_key(table->pager, right_child);
         *internal_node_right_child(parent) = child_page_num;
     } 
     else 
     {
-    /* Make room for the new cell */
-    for (uint32_t i = original_num_keys; i > index; i--) 
-    {
-        void* destination = internal_node_cell(parent, i);
-        void* source = internal_node_cell(parent, i - 1);
-        memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
-    }
-
-    *internal_node_child(parent, index) = child_page_num;
-    *internal_node_key(parent, index) = child_max_key;
+        /* Make room for the new cell */
+        for (uint32_t i = original_num_keys; i > index; i--) 
+        {
+            void* destination = internal_node_cell(parent, i);
+            void* source = internal_node_cell(parent, i - 1);
+            memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
+        }
+      
+        *internal_node_child(parent, index) = child_page_num;
+        *internal_node_key(parent, index) = child_max_key;
     
-  }
+    }
 }
 
 void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint32_t child_page_num) 
@@ -201,7 +201,20 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
 
     uint32_t new_page_num = get_unused_page_num(table->pager);
 
-    // Проверяем, является ли текущий узел корнем
+    /*
+    Declaring a flag before updating pointers which
+    records whether this operation involves splitting the root -
+    if it does, we will insert our newly created node during
+    the step where the table's new root is created. If it does
+    not, we have to insert the newly created node into its parent
+    after the old node's keys have been transferred over. We are not
+    able to do this if the newly created node's parent is not a newly
+    initialized root node, because in that case its parent may have existing
+    keys aside from our old node which we are splitting. If that is true, we
+    need to find a place for our newly created node in its parent, and we
+    cannot insert it at the correct index if it does not yet have any keys
+    */
+
     uint32_t splitting_root = is_node_root(old_node);
 
     void* parent;
@@ -213,9 +226,16 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
         parent = get_page(table->pager, table->root_page_num);
       
         // После создания нового корня, обновляем old_node (он теперь левый ребенок нового корня)
+        /*
+        If we are splitting the root, we need to update old_node to point
+        to the new root's left child, new_page_num will already point to
+        the new root's right child
+        */
         old_page_num = *internal_node_child(parent, 0);
         old_node = get_page(table->pager, old_page_num);
-    } else {
+    } 
+    else 
+    {
         parent = get_page(table->pager, *node_parent(old_node));
         new_node = get_page(table->pager, new_page_num);
         initialize_internal_node(new_node);

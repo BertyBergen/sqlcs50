@@ -22,6 +22,7 @@ Pager *pager_open(const char *filename)
         printf("Unable to open file\n");
         exit(EXIT_FAILURE);
     }
+
     off_t file_length = lseek(fd, 0, SEEK_END); // lseek(fd дескриптор файла, offset смещение , whence откуда отмеряем)  Перемещает указатель чтения/записи в файле. В данном случае от нуля до конца. Получаем результат размер файла в байтах. Тип off_t просто число типа long
 
     Pager *pager = malloc(sizeof(Pager)); 
@@ -32,9 +33,10 @@ Pager *pager_open(const char *filename)
 
     if (file_length % PAGE_SIZE != 0) {
         printf("Db file is not a whole number of pages. Corrupt file.\n");
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
-
+  
+    
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
     {
         pager->pages[i] = NULL;
@@ -80,7 +82,7 @@ void *get_page(Pager *pager, uint32_t page_num)
     return pager->pages[page_num];
 }
 
-void pager_flush(Pager* pager, uint32_t page_num) 
+void pager_flush(Pager *pager, uint32_t page_num) 
 {
     if (pager->pages[page_num] == NULL) {
       printf("Tried to flush null page\n");
@@ -102,7 +104,13 @@ void pager_flush(Pager* pager, uint32_t page_num)
       exit(EXIT_FAILURE);
     }
 }
-
+void pager_print(Pager *pager)
+{
+    
+    off_t file_length = lseek(pager->file_descriptor, 0, SEEK_END);
+    printf("%ld \n", file_length % PAGE_SIZE);
+    printf("%ld \n", file_length);
+}
 /*
 Until we start recycling free pages, new pages will always
 go onto the end of the database file

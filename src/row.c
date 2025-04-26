@@ -75,8 +75,6 @@ void serialize_row(Row* source, void* destination)
     memcpy(destination + ID_OFFSET, &(source->id), ID_SIZE);
     memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
     memcpy(destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
-    //strncpy(destination + USERNAME_OFFSET, source->username, USERNAME_SIZE);
-   //strncpy(destination + EMAIL_OFFSET, source->email, EMAIL_SIZE);
 }
 
 void deserialize_row(void *source, Row* destination) 
@@ -222,21 +220,25 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
         if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) 
         {
             destination_node = new_node;
-        } else {
+        } 
+        else 
+        {
             destination_node = old_node;
         }
+        
         uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;
         void* destination = leaf_node_cell(destination_node, index_within_node);
+        
         if (i == cursor->cell_num) 
         {
-            serialize_row(value, destination);
             serialize_row(value, leaf_node_value(destination_node, index_within_node));
             *leaf_node_key(destination_node, index_within_node) = key;
         } 
         else if (i > cursor->cell_num) 
         {
             memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
-        } else 
+        } 
+        else 
         {
             memcpy(destination, leaf_node_cell(old_node, i), LEAF_NODE_CELL_SIZE);
         }
@@ -244,6 +246,7 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
     /* Update cell count on both leaf nodes */
     *(leaf_node_num_cells(old_node)) = LEAF_NODE_LEFT_SPLIT_COUNT;
     *(leaf_node_num_cells(new_node)) = LEAF_NODE_RIGHT_SPLIT_COUNT;
+    
     if (is_node_root(old_node)) 
     {
         return create_new_root(cursor->table, new_page_num);
@@ -353,6 +356,7 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     uint32_t left_child_page_num = get_unused_page_num(table->pager);
     // Выделяем новую страницу для левого ребёнка, куда мы скопируем старый корень.
     void* left_child = get_page(table->pager, left_child_page_num); 
+
     if (get_node_type(root) == NODE_INTERNAL) 
     {
         initialize_internal_node(right_child);
@@ -361,6 +365,7 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     /* Left child has data copied from old root */
     memcpy(left_child, root, PAGE_SIZE); // Копируем старый корень  в левого ребенка.
     set_node_root(left_child, false); // Отмечаем, что он больше не корень.
+    
     if (get_node_type(left_child) == NODE_INTERNAL) 
     {
         void* child;
