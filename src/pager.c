@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,6 +6,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "../include/pager.h"
+#include "../include/btree.h"
 
 
 Pager *pager_open(const char *filename) 

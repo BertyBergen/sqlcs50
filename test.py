@@ -106,7 +106,7 @@ class TestDatabase(unittest.TestCase):
   
     def test_insert_16_rows(self):
         script = []
-        for i in range(1, 14):
+        for i in range(1, 20):
             script.append(f"insert {i} user{i} person{i}@example.com;")
 
         script.append("select;")

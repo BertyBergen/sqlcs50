@@ -1,9 +1,8 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
-#include "table.h"
-#include "row.h"
-// #include "cursor.h"
+#include "btree.h"
+#include "cursor.h"
 #include "statement.h"
 
 typedef enum 

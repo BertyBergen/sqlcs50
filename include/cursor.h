@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-// #include "table.h"
+// #include "btree.h"
 // #include "row.h"
 
 struct Table;

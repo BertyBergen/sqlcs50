@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/cursor.h"
-#include "../include/table.h"
+#include "../include/btree.h"
+// #include "../include/table.h"
 
 Cursor* table_start(Table* table) 
 {

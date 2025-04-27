@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "pager.h"
+// #include "btree.h"
 
 typedef struct Table {
     Pager *pager;

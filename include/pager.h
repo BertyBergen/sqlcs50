@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "row.h" 
-#include "constants.h"
 
 typedef struct {
     int file_descriptor;
