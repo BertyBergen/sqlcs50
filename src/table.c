@@ -46,6 +46,12 @@ void db_close(Table* table)
         exit(EXIT_FAILURE);
     }
 
+    if (ftruncate(pager->file_descriptor, pager->num_pages * PAGE_SIZE) == -1) 
+    {
+        printf("Error truncating file: %d\n", errno); // errno global variable for save error message
+        exit(EXIT_FAILURE);
+    }    
+
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) // Освобождаем указатель, нужно делать всегда
     { 
         void* page = pager->pages[i];
