@@ -1,6 +1,8 @@
 # VSCode settings
 .vscode/
-
+__pycache__
+assets
+.pytest_cache
 # Build files
 *.o
 *.exe
@@ -10,3 +12,5 @@
 
 # DB
 mydb.db
+test.db
+test.rb

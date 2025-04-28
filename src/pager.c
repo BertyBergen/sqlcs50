@@ -104,13 +104,7 @@ void pager_flush(Pager *pager, uint32_t page_num)
       exit(EXIT_FAILURE);
     }
 }
-void pager_print(Pager *pager)
-{
-    
-    off_t file_length = lseek(pager->file_descriptor, 0, SEEK_END);
-    printf("%ld \n", file_length % PAGE_SIZE);
-    printf("%ld \n", file_length);
-}
+
 /*
 Until we start recycling free pages, new pages will always
 go onto the end of the database file

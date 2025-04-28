@@ -33,8 +33,6 @@ ExecuteResult execute_select(Statement* statement, Table* table)
         print_row(&row);    
         cursor_advance(cursor);
     }
-    printf("Page bytes %d\n", cursor->cell_num*ROW_SIZE);
-    pager_print(table->pager);
     free(cursor);
     
     return EXECUTE_SUCCESS;
