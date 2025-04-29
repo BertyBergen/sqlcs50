@@ -19,28 +19,37 @@ Cursor* table_start(Table* table)
 // If the key is not present, return the position
 // where it should be inserted
 
-Cursor* leaf_node_find(Table* table, uint32_t page_num, uint32_t key) //Это либо вернет положение ключа, положение другого ключа, который нам нужно будет переместить, если мы захотим вставить новый ключ, или позиция, следующая за последней клавишей
+Cursor *leaf_node_find(Table *table, uint32_t page_num, uint32_t key) 
+//Это либо вернет положение ключа, положение другого ключа, который нам нужно будет переместить, 
+//если мы захотим вставить новый ключ, или позиция, следующая за последней клавишей
 {
-    void* node = get_page(table->pager, page_num);
+    void *node = get_page(table->pager, page_num);
     uint32_t num_cells = *leaf_node_num_cells(node);
   
-    Cursor* cursor = malloc(sizeof(Cursor));
+    Cursor *cursor = malloc(sizeof(Cursor));
     cursor->table = table;
     cursor->page_num = page_num;
+    cursor->end_of_table = false;
   
     // Binary search
     uint32_t min_index = 0;
     uint32_t one_past_max_index = num_cells;
-    while (one_past_max_index != min_index) {
+    while (one_past_max_index != min_index) 
+    {
       uint32_t index = (min_index + one_past_max_index) / 2;
       uint32_t key_at_index = *leaf_node_key(node, index);
-      if (key == key_at_index) {
+      
+      if (key == key_at_index) 
+      {
         cursor->cell_num = index;
         return cursor;
       }
-      if (key < key_at_index) {
+      if (key < key_at_index) 
+      {
         one_past_max_index = index;
-      } else {
+      } 
+      else 
+      {
         min_index = index + 1;
       }
     }
@@ -49,14 +58,17 @@ Cursor* leaf_node_find(Table* table, uint32_t page_num, uint32_t key) //Это �
     return cursor;
 }
 
-Cursor* table_find(Table* table, uint32_t key) 
+Cursor *table_find(Table *table, uint32_t key) 
 {
     uint32_t root_page_num = table->root_page_num;
-    void* root_node = get_page(table->pager, root_page_num);
-  
-    if (get_node_type(root_node) == NODE_LEAF) {
-      return leaf_node_find(table, root_page_num, key);
-    } else {
+    void *root_node = get_page(table->pager, root_page_num);
+
+    if (get_node_type(root_node) == NODE_LEAF) 
+    {
+        return leaf_node_find(table, root_page_num, key);
+    } 
+    else 
+    {
       return internal_node_find(table, root_page_num, key);
     }
 }
@@ -106,22 +118,22 @@ uint32_t internal_node_find_child(void *node, uint32_t key)
         if (key_to_right >= key) 
         {
           max_index = index;
-        } else 
+        } 
+        else 
         {
           min_index = index + 1;
         }
     }
-    uint32_t child_num = *internal_node_child(node, min_index);
     return min_index;
 }
 
-Cursor* internal_node_find(Table* table, uint32_t page_num, uint32_t key) 
+Cursor *internal_node_find(Table* table, uint32_t page_num, uint32_t key) 
 {
     void* node = get_page(table->pager, page_num);
-  
     uint32_t child_index = internal_node_find_child(node, key);
     uint32_t child_num = *internal_node_child(node, child_index);
     void* child = get_page(table->pager, child_num);
+    
     switch (get_node_type(child)) 
     {
         case NODE_LEAF:
@@ -133,7 +145,7 @@ Cursor* internal_node_find(Table* table, uint32_t page_num, uint32_t key)
 
 
 
-void internal_node_insert(Table* table, uint32_t parent_page_num, uint32_t child_page_num) 
+void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child_page_num) 
 {
     // Add a new child/key pair to parent that corresponds to child
     
@@ -201,7 +213,7 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     uint32_t child_max = get_node_max_key(table->pager, child);
 
     uint32_t new_page_num = get_unused_page_num(table->pager);
-
+    
     /*
     Declaring a flag before updating pointers which
     records whether this operation involves splitting the root -

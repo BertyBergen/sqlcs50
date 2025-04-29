@@ -4,72 +4,84 @@
 #include "../include/btree.h"
 #include "../include/row.h"
 
-uint32_t* leaf_node_num_cells(void* node) 
+uint32_t *leaf_node_num_cells(void *node) 
 {
     return node + LEAF_NODE_NUM_CELLS_OFFSET;
 }
 
-uint32_t* leaf_node_next_leaf(void* node) 
+uint32_t *leaf_node_next_leaf(void *node) 
 {
     return node + LEAF_NODE_NEXT_LEAF_OFFSET;
 }
 
 // Возвращает указатель на начало ячейки с номером cell_num
-void* leaf_node_cell(void* node, uint32_t cell_num) 
+void* leaf_node_cell(void *node, uint32_t cell_num) 
 {
     return node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
 }
 
 // Возвращает указатель на ключ в ячейке
-uint32_t* leaf_node_key(void* node, uint32_t cell_num) 
+uint32_t *leaf_node_key(void *node, uint32_t cell_num) 
 {
     return leaf_node_cell(node, cell_num);
 }
 
 // Возвращает указатель на значение в ячейке
-void* leaf_node_value(void* node, uint32_t cell_num)
+void* leaf_node_value(void *node, uint32_t cell_num)
 {
     return leaf_node_cell(node, cell_num) + LEAF_NODE_KEY_SIZE;
 }
 
-NodeType get_node_type(void* node) 
+NodeType get_node_type(void *node) 
 {
     uint8_t value = *((uint8_t*)(node + NODE_TYPE_OFFSET));
     return (NodeType)value;
 }
     
-void set_node_type(void* node, NodeType type) 
+void set_node_type(void *node, NodeType type) 
 {
     uint8_t value = type;
     *((uint8_t*)(node + NODE_TYPE_OFFSET)) = value;
+}
+
+bool is_node_root(void *node) 
+{
+    uint8_t value = *((uint8_t*)(node + IS_ROOT_OFFSET));
+    return (bool)value;
+}
+    
+void set_node_root(void *node, bool is_root) 
+{
+    uint8_t value = is_root;
+    *((uint8_t*)(node + IS_ROOT_OFFSET)) = value;
 }
 
 uint32_t* node_parent(void *node) 
 { 
     return node + PARENT_POINTER_OFFSET; 
 }
-uint32_t* internal_node_num_keys(void* node) 
+uint32_t *internal_node_num_keys(void *node) 
 {
       return node + INTERNAL_NODE_NUM_KEYS_OFFSET;
 }
     
-uint32_t* internal_node_right_child(void* node) 
+uint32_t *internal_node_right_child(void* node) 
 {
     return node + INTERNAL_NODE_RIGHT_CHILD_OFFSET;
 }
 
-uint32_t* internal_node_cell(void* node, uint32_t cell_num) 
+uint32_t *internal_node_cell(void* node, uint32_t cell_num) 
 {
     return node + INTERNAL_NODE_HEADER_SIZE + cell_num * INTERNAL_NODE_CELL_SIZE;
 }
 
-uint32_t* internal_node_child(void* node, uint32_t child_num) 
+uint32_t *internal_node_child(void *node, uint32_t child_num) // FAIL
 {
     uint32_t num_keys = *internal_node_num_keys(node);
     if (child_num > num_keys) 
     {
-    printf("Tried to access child_num %d > num_keys %d\n", child_num, num_keys);
-    exit(EXIT_FAILURE);
+        printf("Tried to access child_num %d > num_keys %d\n", child_num, num_keys);
+        exit(EXIT_FAILURE);
     } 
     else if (child_num == num_keys) 
     {
@@ -79,10 +91,12 @@ uint32_t* internal_node_child(void* node, uint32_t child_num)
             printf("Tried to access right child of node, but was invalid page\n");
             exit(EXIT_FAILURE);
         }
+        return right_child;
     }
     else 
     {
-        uint32_t* child = internal_node_cell(node, child_num);
+       
+        uint32_t *child = internal_node_cell(node, child_num);
         if (*child == INVALID_PAGE_NUM) 
         {
             printf("Tried to access child %d of node, but was invalid page\n", child_num);
@@ -92,29 +106,30 @@ uint32_t* internal_node_child(void* node, uint32_t child_num)
     }
 }
 
-uint32_t* internal_node_key(void* node, uint32_t key_num) {
+uint32_t *internal_node_key(void *node, uint32_t key_num) 
+{
     return internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE;
 }
 
-void update_internal_node_key(void* node, uint32_t old_key, uint32_t new_key) 
+void update_internal_node_key(void *node, uint32_t old_key, uint32_t new_key) 
 {
     uint32_t old_child_index = internal_node_find_child(node, old_key);
-    *internal_node_key(node, old_child_index) = new_key;
+    // *internal_node_key(node, old_child_index) = new_key;
+     // Добавляем проверку, чтобы убедиться, что ключ найден
+     if (old_child_index < *internal_node_num_keys(node)) 
+     {
+        *internal_node_key(node, old_child_index) = new_key;
+    }
+    else 
+    {
+        // Если ключ не найден, можно выбросить ошибку или выполнить другую логику
+        printf("Error: Old key not found in the internal node.\n");
+    }
 }
 
-bool is_node_root(void* node) 
-{
-    uint8_t value = *((uint8_t*)(node + IS_ROOT_OFFSET));
-    return (bool)value;
-}
-    
-void set_node_root(void* node, bool is_root) 
-{
-    uint8_t value = is_root;
-    *((uint8_t*)(node + IS_ROOT_OFFSET)) = value;
-}
 
-void initialize_leaf_node(void* node) 
+
+void initialize_leaf_node(void *node) 
 {
     set_node_type(node, NODE_LEAF);
     set_node_root(node, false);
@@ -125,8 +140,7 @@ void initialize_leaf_node(void* node)
 // Вставка нового узла в упорядоченный массив внутри листа
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value) 
 {
-    void* node = get_page(cursor->table->pager, cursor->page_num);
-
+    void *node = get_page(cursor->table->pager, cursor->page_num);
     uint32_t num_cells = *leaf_node_num_cells(node);
     if (num_cells >= LEAF_NODE_MAX_CELLS) 
     {
@@ -157,11 +171,13 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
     Insert the new value in one of the two nodes.
     Update parent or create a new parent.
     */
-    void* old_node = get_page(cursor->table->pager, cursor->page_num);
+    void *old_node = get_page(cursor->table->pager, cursor->page_num);
     uint32_t old_max = get_node_max_key(cursor->table->pager, old_node);
     uint32_t new_page_num = get_unused_page_num(cursor->table->pager);
-    void* new_node = get_page(cursor->table->pager, new_page_num);
+
+    void *new_node = get_page(cursor->table->pager, new_page_num);
     initialize_leaf_node(new_node);
+    
     *node_parent(new_node) = *node_parent(old_node);
     *leaf_node_next_leaf(new_node) = *leaf_node_next_leaf(old_node);
     *leaf_node_next_leaf(old_node) = new_page_num;
@@ -173,7 +189,7 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
     */
     for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) 
     {
-        void* destination_node;
+        void *destination_node;
 
         if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) 
         {
@@ -185,7 +201,7 @@ void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value)
         }
         
         uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;
-        void* destination = leaf_node_cell(destination_node, index_within_node);
+        void *destination = leaf_node_cell(destination_node, index_within_node);
         
         if (i == cursor->cell_num) 
         {
@@ -262,8 +278,8 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     set_node_root(root, true); // Обозначаем его как новый корень.
     *internal_node_num_keys(root) = 1; // У нового корня только один ключ.
     *internal_node_child(root, 0) = left_child_page_num; // Первый ребёнок нового корня — это левый узел (старый корень).
-    uint32_t left_child_max_key = get_node_max_key(table->pager, left_child); // Извлекаем максимальный ключ из левого узла и записываем его в корень.
-    *internal_node_key(root, 0) = left_child_max_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
+    uint32_t right_child_min_key  = get_node_min_key(table->pager, right_child); // Извлекаем минимальный ключ из правого узла и записываем его в корень.
+    *internal_node_key(root, 0) = right_child_min_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
     *internal_node_right_child(root) = right_child_page_num; // Устанавливаем правого ребёнка корня — это тот узел, что получился из сплита.
     *node_parent(left_child) = table->root_page_num;
     *node_parent(right_child) = table->root_page_num;

@@ -161,3 +161,13 @@ uint32_t get_node_max_key(Pager* pager, void* node)
     void* right_child = get_page(pager,*internal_node_right_child(node));
     return get_node_max_key(pager, right_child);
 }
+
+uint32_t get_node_min_key(Pager* pager, void* node) 
+{
+    if (get_node_type(node) == NODE_LEAF) 
+    {
+        return *leaf_node_key(node, 0);
+    }
+    void* left_child = get_page(pager, *internal_node_child(node, 0));
+    return get_node_min_key(pager, left_child);
+}
