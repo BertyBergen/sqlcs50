@@ -3,7 +3,8 @@
 #include <string.h>
 #include "../include/prepare.h"
 
-PrepareResult prepare_insert(InputBuffer* input_buffer, Statement* statement) { // Сделать свой парсер. Потом уже
+PrepareResult prepare_insert(InputBuffer *input_buffer, Statement *statement) 
+{ 
     statement->type = STATEMENT_INSERT;
 
     char* keyword = strtok(input_buffer->buffer, " ");
@@ -11,7 +12,8 @@ PrepareResult prepare_insert(InputBuffer* input_buffer, Statement* statement) { 
     char* username = strtok(NULL, " ");
     char* email = strtok(NULL, " ");
 
-    if (id_string == NULL || username == NULL || email == NULL) {
+    if (id_string == NULL || username == NULL || email == NULL) 
+    {
         return PREPARE_SYNTAX_ERROR;
     }
 
@@ -20,10 +22,12 @@ PrepareResult prepare_insert(InputBuffer* input_buffer, Statement* statement) { 
     {
         return PREPARE_NEGATIVE_ID;
     }
-    if (strlen(username) > COLUMN_USERNAME_SIZE) {
+    if (strlen(username) > COLUMN_USERNAME_SIZE) 
+    {
         return PREPARE_STRING_TOO_LONG;
     }
-    if (strlen(email) > COLUMN_EMAIL_SIZE) {
+    if (strlen(email) > COLUMN_EMAIL_SIZE) 
+    {
         return PREPARE_STRING_TOO_LONG;
     }
 
@@ -34,11 +38,14 @@ PrepareResult prepare_insert(InputBuffer* input_buffer, Statement* statement) { 
     return PREPARE_SUCCESS;
 }
 
-PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement) {
-    if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
+PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement) 
+{
+    if (strncmp(input_buffer->buffer, "insert", 6) == 0) 
+    {
         return prepare_insert(input_buffer, statement);
     }
-    if (strcmp(input_buffer->buffer, "select") == 0) {
+    if (strcmp(input_buffer->buffer, "select") == 0) 
+    {
         statement->type = STATEMENT_SELECT;
         return PREPARE_SUCCESS;
     }

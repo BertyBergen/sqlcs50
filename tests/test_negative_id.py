@@ -1,12 +1,15 @@
 import unittest
-from run_script_helper import run_script
+import os
+from run_script import run_script
 
+
+test_name = os.path.basename(__file__)
 class TestNegativeID(unittest.TestCase):
-    def test_prints_error_message_if_id_is_negative(self):
+    def test_if_id_is_negative(self):
         script = [
-            "insert -1 cstack foo@bar.com;",
+            "insert -1 sysna kachaka@bar.com;",
             "select;",
             ".exit;",
         ]
-        result = run_script(script)
-        self.assertIn("sqlcs50 > ID must be positive.", result)
+        result = run_script(script, test_name,  "test_if_id_is_negative")
+        self.assertIn("sqlcs50> ID must be positive.", result)

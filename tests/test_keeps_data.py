@@ -1,5 +1,5 @@
 import unittest
-from run_script_helper import run_script, clean_output
+from run_script import run_script, clean_output
 
 class TestKeepsData(unittest.TestCase):
     def test_keeps_data_after_closing_connection(self):

@@ -1,5 +1,5 @@
 import unittest
-from run_script_helper import run_script, clean_output
+from run_script import run_script, clean_output
 
 class TestSelectMultiLevel(unittest.TestCase):
     def test_prints_all_rows_in_multi_level_tree(self):

@@ -1,5 +1,5 @@
 import unittest
-from run_script_helper import run_script, clean_output
+from run_script import run_script, clean_output
 
 class TestDuplicateID(unittest.TestCase):
     def test_prints_error_message_if_duplicate_id(self):

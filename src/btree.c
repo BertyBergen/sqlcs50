@@ -15,7 +15,7 @@ uint32_t *leaf_node_next_leaf(void *node)
 }
 
 // Возвращает указатель на начало ячейки с номером cell_num
-void* leaf_node_cell(void *node, uint32_t cell_num) 
+void *leaf_node_cell(void *node, uint32_t cell_num) 
 {
     return node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
 }
@@ -27,7 +27,7 @@ uint32_t *leaf_node_key(void *node, uint32_t cell_num)
 }
 
 // Возвращает указатель на значение в ячейке
-void* leaf_node_value(void *node, uint32_t cell_num)
+void *leaf_node_value(void *node, uint32_t cell_num)
 {
     return leaf_node_cell(node, cell_num) + LEAF_NODE_KEY_SIZE;
 }
@@ -56,7 +56,7 @@ void set_node_root(void *node, bool is_root)
     *((uint8_t*)(node + IS_ROOT_OFFSET)) = value;
 }
 
-uint32_t* node_parent(void *node) 
+uint32_t *node_parent(void *node) 
 { 
     return node + PARENT_POINTER_OFFSET; 
 }
@@ -164,7 +164,7 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
     serialize_row(value, leaf_node_value(node, cursor->cell_num));
 }
 
-void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value) 
+void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value) 
 {
     /*
     Create a new node and move half the cells over.
@@ -263,7 +263,7 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     
     if (get_node_type(left_child) == NODE_INTERNAL) 
     {
-        void* child;
+        void *child;
         for (int i = 0; i < *internal_node_num_keys(left_child); i++) 
         {
             child = get_page(table->pager, *internal_node_child(left_child,i));
@@ -278,14 +278,14 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     set_node_root(root, true); // Обозначаем его как новый корень.
     *internal_node_num_keys(root) = 1; // У нового корня только один ключ.
     *internal_node_child(root, 0) = left_child_page_num; // Первый ребёнок нового корня — это левый узел (старый корень).
-    uint32_t right_child_min_key  = get_node_min_key(table->pager, right_child); // Извлекаем минимальный ключ из правого узла и записываем его в корень.
-    *internal_node_key(root, 0) = right_child_min_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
+    uint32_t left_child_max_key  = get_node_max_key(table->pager, left_child); // Извлекаем минимальный ключ из правого узла и записываем его в корень.
+    *internal_node_key(root, 0) = left_child_max_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
     *internal_node_right_child(root) = right_child_page_num; // Устанавливаем правого ребёнка корня — это тот узел, что получился из сплита.
     *node_parent(left_child) = table->root_page_num;
     *node_parent(right_child) = table->root_page_num;
 }
 
-void initialize_internal_node(void* node) 
+void initialize_internal_node(void *node) 
 {
     set_node_type(node, NODE_INTERNAL);
     set_node_root(node, false);

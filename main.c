@@ -24,8 +24,10 @@ int main(int argc, char* argv[])
 
         read_input(input_buffer);
         
-        if (input_buffer->buffer[0] == '.') {
-            switch (do_meta_command(input_buffer, table)) {
+        if (input_buffer->buffer[0] == '.') 
+        {
+            switch (do_meta_command(input_buffer, table)) 
+            {
                 case META_COMMAND_SUCCESS:
                     continue;
                 case META_COMMAND_UNRECOGNIZED_COMMAND:
@@ -35,7 +37,8 @@ int main(int argc, char* argv[])
         }
         
         Statement statement;
-        switch (prepare_statement(input_buffer, &statement)) {
+        switch (prepare_statement(input_buffer, &statement)) 
+        {
             case PREPARE_SUCCESS:
                 break;
             case PREPARE_STRING_TOO_LONG:
@@ -52,15 +55,13 @@ int main(int argc, char* argv[])
                 continue;
         }
 
-        switch (execute_statement(&statement, table)) {
+        switch (execute_statement(&statement, table)) 
+        {
             case EXECUTE_SUCCESS:
                 printf("Executed.\n");
                 break;
             case (EXECUTE_DUPLICATE_KEY):
                 printf("Error: Duplicate key.\n");
-                break;
-            case EXECUTE_TABLE_FULL:
-                printf("Error: Table full.\n");
                 break;
         }
     }

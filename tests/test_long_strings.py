@@ -1,5 +1,5 @@
 import unittest
-from run_script_helper import run_script, clean_output
+from run_script import run_script, clean_output
 
 class TestLongStrings(unittest.TestCase):
     def test_allows_inserting_strings_that_are_max_length(self):

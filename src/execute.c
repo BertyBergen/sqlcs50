@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include "../include/execute.h"
 
-ExecuteResult execute_insert(Statement* statement, Table* table) 
+ExecuteResult execute_insert(Statement *statement, Table *table) 
 {
 
-    Row* row_to_insert = &(statement->row_to_insert);
+    Row *row_to_insert = &(statement->row_to_insert);
     uint32_t key_to_insert = row_to_insert->id;
     Cursor *cursor = table_find(table, key_to_insert);
     
@@ -26,9 +26,9 @@ ExecuteResult execute_insert(Statement* statement, Table* table)
     return EXECUTE_SUCCESS;
 }
 
-ExecuteResult execute_select(Statement* statement, Table* table) 
+ExecuteResult execute_select(Statement *statement, Table *table) 
 {
-    Cursor* cursor = table_start(table);
+    Cursor *cursor = table_start(table);
     
     Row row;
     while (!(cursor->end_of_table)) {
@@ -41,7 +41,7 @@ ExecuteResult execute_select(Statement* statement, Table* table)
     return EXECUTE_SUCCESS;
 }
 
-ExecuteResult execute_statement(Statement* statement, Table *table) 
+ExecuteResult execute_statement(Statement *statement, Table *table) 
 {
     switch (statement->type) {
         case (STATEMENT_INSERT):

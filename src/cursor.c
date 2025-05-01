@@ -3,11 +3,10 @@
 #include <string.h>
 #include "../include/cursor.h"
 #include "../include/btree.h"
-// #include "../include/table.h"
 
-Cursor* table_start(Table* table) 
+Cursor *table_start(Table *table) 
 {
-    Cursor* cursor =  table_find(table, 0);
+    Cursor *cursor =  table_find(table, 0);
   
     void* node = get_page(table->pager, cursor->page_num);
     uint32_t num_cells = *leaf_node_num_cells(node);
@@ -76,7 +75,7 @@ Cursor *table_find(Table *table, uint32_t key)
 void* cursor_value(Cursor *cursor)
 {
     uint32_t page_num = cursor->page_num;
-    void* page = get_page(cursor->table->pager, page_num);
+    void *page = get_page(cursor->table->pager, page_num);
     return leaf_node_value(page, cursor->cell_num);
 }
 
@@ -127,12 +126,12 @@ uint32_t internal_node_find_child(void *node, uint32_t key)
     return min_index;
 }
 
-Cursor *internal_node_find(Table* table, uint32_t page_num, uint32_t key) 
+Cursor *internal_node_find(Table *table, uint32_t page_num, uint32_t key) 
 {
-    void* node = get_page(table->pager, page_num);
+    void *node = get_page(table->pager, page_num);
     uint32_t child_index = internal_node_find_child(node, key);
     uint32_t child_num = *internal_node_child(node, child_index);
-    void* child = get_page(table->pager, child_num);
+    void *child = get_page(table->pager, child_num);
     
     switch (get_node_type(child)) 
     {
@@ -147,29 +146,31 @@ Cursor *internal_node_find(Table* table, uint32_t page_num, uint32_t key)
 
 void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child_page_num) 
 {
-    // Add a new child/key pair to parent that corresponds to child
+    // Получаем указатели на родительскую и дочернюю страницы
+    void *parent = get_page(table->pager, parent_page_num);
+    void *child = get_page(table->pager, child_page_num);
     
-    void* parent = get_page(table->pager, parent_page_num);
-    void* child = get_page(table->pager, child_page_num);
-    uint32_t child_max_key = get_node_max_key(table->pager, child);
+    // Получаем max ключ из дочернего узла
+     uint32_t child_max_key = get_node_max_key(table->pager, child);
+    // Находим индекс в родителе, куда вставлять ключ
     uint32_t index = internal_node_find_child(parent, child_max_key);
-
+    // Получаем текущее количество ключей в родителе
     uint32_t original_num_keys = *internal_node_num_keys(parent);
-
+    // Если родитель переполнен, вызываем split
     if (original_num_keys >= INTERNAL_NODE_MAX_KEYS) 
     {
         internal_node_split_and_insert(table, parent_page_num, child_page_num);
         return;
     }
-
+    // Получаем текущего правого ребенка
     uint32_t right_child_page_num = *internal_node_right_child(parent);
-    // An internal node with a right child of INVALID_PAGE_NUM is empty
+    // Если правого ребенка ещё нет, просто делаем им текущий child
     if (right_child_page_num == INVALID_PAGE_NUM) 
     {
         *internal_node_right_child(parent) = child_page_num;
         return;
     }
-
+    // Получаем указатель на правого ребенка
     void* right_child = get_page(table->pager, right_child_page_num);
     /*
     If we are already at the max number of cells for a node, we cannot increment
@@ -177,9 +178,8 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
     and immediately calling internal_node_split_and_insert has the effect
     of creating a new key at (max_cells + 1) with an uninitialized value
     */
-   
+    // Увеличиваем количество ключей
     *internal_node_num_keys(parent) = original_num_keys + 1;
-
     if (child_max_key > get_node_max_key(table->pager, right_child)) 
     {
         /* Replace right child */
@@ -189,14 +189,14 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
     } 
     else 
     {
-        /* Make room for the new cell */
+        // Сдвигаем все элементы вправо для вставки нового
         for (uint32_t i = original_num_keys; i > index; i--) 
         {
             void* destination = internal_node_cell(parent, i);
             void* source = internal_node_cell(parent, i - 1);
             memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
         }
-      
+        // Вставляем новый дочерний узел и ключ
         *internal_node_child(parent, index) = child_page_num;
         *internal_node_key(parent, index) = child_max_key;
     
@@ -204,14 +204,15 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
 }
 
 void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint32_t child_page_num) 
-{
+{   
+     // Сохраняем старый узел и его максимальный ключ
     uint32_t old_page_num = parent_page_num;
-    void* old_node = get_page(table->pager, parent_page_num);
+    void *old_node = get_page(table->pager, parent_page_num);
     uint32_t old_max = get_node_max_key(table->pager, old_node);
-
-    void* child = get_page(table->pager, child_page_num); 
+    // Получаем указатель и ключ дочернего узла
+    void *child = get_page(table->pager, child_page_num); 
     uint32_t child_max = get_node_max_key(table->pager, child);
-
+    // Выделяем новую страницу для нового узла
     uint32_t new_page_num = get_unused_page_num(table->pager);
     
     /*
@@ -227,13 +228,14 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     need to find a place for our newly created node in its parent, and we
     cannot insert it at the correct index if it does not yet have any keys
     */
-
+    // Проверяем, сплитим ли корень
     uint32_t splitting_root = is_node_root(old_node);
 
     void* parent;
     void* new_node;
 
-    if (splitting_root) {
+    if (splitting_root) 
+    {
         // Если мы сплитим корень, создаём новый корень
         create_new_root(table, new_page_num);
         parent = get_page(table->pager, table->root_page_num);
@@ -249,16 +251,17 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     } 
     else 
     {
+        // Получаем родителя старого узла и инициализируем новый узел
         parent = get_page(table->pager, *node_parent(old_node));
         new_node = get_page(table->pager, new_page_num);
         initialize_internal_node(new_node);
     }
-
-    uint32_t* old_num_keys = internal_node_num_keys(old_node);
+    // Получаем количество ключей в старом узле
+    uint32_t *old_num_keys = internal_node_num_keys(old_node);
 
     // Получаем текущего правого ребенка old_node
     uint32_t cur_page_num = *internal_node_right_child(old_node);
-    void* cur = get_page(table->pager, cur_page_num);
+    void *cur = get_page(table->pager, cur_page_num);
 
     // Переносим правого ребенка в новый узел
     internal_node_insert(table, new_page_num, cur_page_num);
@@ -268,7 +271,8 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     *internal_node_right_child(old_node) = INVALID_PAGE_NUM;
 
     // Переносим половину ключей/указателей в новый узел
-    for (int i = INTERNAL_NODE_MAX_KEYS - 1; i > INTERNAL_NODE_MAX_KEYS / 2; i--) {
+    for (int i = INTERNAL_NODE_MAX_KEYS - 1; i > INTERNAL_NODE_MAX_KEYS / 2; i--) 
+    {
         cur_page_num = *internal_node_child(old_node, i);
         cur = get_page(table->pager, cur_page_num);
 
@@ -293,7 +297,8 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     // Обновляем ключ в родителе: old_max → новый максимум в old_node
     update_internal_node_key(parent, old_max, get_node_max_key(table->pager, old_node));
 
-    if (!splitting_root) {
+    if (!splitting_root) 
+    {
         // Вставляем ссылку на новый узел в родителя
         internal_node_insert(table, *node_parent(old_node), new_page_num);
         *node_parent(new_node) = *node_parent(old_node);

@@ -7,7 +7,7 @@
 #include "../include/btree.h"
 
 
-Table* db_open(const char *filename)
+Table *db_open(const char *filename)
 {
     Pager *pager  = pager_open(filename);
 
@@ -15,7 +15,8 @@ Table* db_open(const char *filename)
     table->pager = pager;
     table->root_page_num = 0;
 
-    if (pager->num_pages == 0) {
+    if (pager->num_pages == 0) 
+    {
         // New database file. Initialize page 0 as leaf node.
         void* root_node = get_page(pager, 0);
         initialize_leaf_node(root_node);
@@ -25,9 +26,9 @@ Table* db_open(const char *filename)
     return table;
 }
 
-void db_close(Table* table) 
+void db_close(Table *table) 
 {
-    Pager* pager = table->pager;
+    Pager *pager = table->pager;
 
     for (uint32_t i = 0; i < pager->num_pages; i++) 
     {
@@ -55,7 +56,7 @@ void db_close(Table* table)
  
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) // Освобождаем указатель, нужно делать всегда
     { 
-        void* page = pager->pages[i];
+        void *page = pager->pages[i];
         if (page) 
         {
             free(page);

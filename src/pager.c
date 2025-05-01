@@ -31,9 +31,10 @@ Pager *pager_open(const char *filename)
     
     pager->num_pages = (file_length / PAGE_SIZE);
 
-    if (file_length % PAGE_SIZE != 0) {
+    if (file_length % PAGE_SIZE != 0) 
+    {
         printf("Db file is not a whole number of pages. Corrupt file.\n");
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
   
     
@@ -84,14 +85,16 @@ void *get_page(Pager *pager, uint32_t page_num)
 
 void pager_flush(Pager *pager, uint32_t page_num) 
 {
-    if (pager->pages[page_num] == NULL) {
+    if (pager->pages[page_num] == NULL) 
+    {
       printf("Tried to flush null page\n");
       exit(EXIT_FAILURE);
     }
   
     off_t offset = lseek(pager->file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
   
-    if (offset == -1) {
+    if (offset == -1) 
+    {
       printf("Error seeking: %d\n", errno);
       exit(EXIT_FAILURE);
     }
@@ -99,7 +102,8 @@ void pager_flush(Pager *pager, uint32_t page_num)
     ssize_t bytes_written =
         write(pager->file_descriptor, pager->pages[page_num], PAGE_SIZE);
   
-    if (bytes_written == -1) {
+    if (bytes_written == -1) 
+    {
       printf("Error writing: %d\n", errno);
       exit(EXIT_FAILURE);
     }
@@ -109,14 +113,14 @@ void pager_flush(Pager *pager, uint32_t page_num)
 Until we start recycling free pages, new pages will always
 go onto the end of the database file
 */
-uint32_t get_unused_page_num(Pager* pager) 
+uint32_t get_unused_page_num(Pager *pager) 
 { 
     return pager->num_pages; 
 }
 
-void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level) 
+void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level) 
 {
-    void* node = get_page(pager, page_num);
+    void *node = get_page(pager, page_num);
     uint32_t num_keys, child;
     
     switch (get_node_type(node)) 
@@ -152,7 +156,7 @@ void print_tree(Pager* pager, uint32_t page_num, uint32_t indentation_level)
     }
 }
 
-uint32_t get_node_max_key(Pager* pager, void* node) 
+uint32_t get_node_max_key(Pager *pager, void *node) 
 {
     if (get_node_type(node) == NODE_LEAF) 
     {
@@ -162,7 +166,7 @@ uint32_t get_node_max_key(Pager* pager, void* node)
     return get_node_max_key(pager, right_child);
 }
 
-uint32_t get_node_min_key(Pager* pager, void* node) 
+uint32_t get_node_min_key(Pager *pager, void *node) 
 {
     if (get_node_type(node) == NODE_LEAF) 
     {
