@@ -7,6 +7,7 @@
 uint32_t *leaf_node_num_cells(void *node) 
 {
     return node + LEAF_NODE_NUM_CELLS_OFFSET;
+    // (uint32_t*)((char*)node
 }
 
 uint32_t *leaf_node_next_leaf(void *node) 
@@ -62,12 +63,12 @@ uint32_t *node_parent(void *node)
 }
 uint32_t *internal_node_num_keys(void *node) 
 {
-      return node + INTERNAL_NODE_NUM_KEYS_OFFSET;
+      return (uint32_t*)((char*)node + INTERNAL_NODE_NUM_KEYS_OFFSET);
 }
     
 uint32_t *internal_node_right_child(void* node) 
 {
-    return node + INTERNAL_NODE_RIGHT_CHILD_OFFSET;
+    return (uint32_t*)((char*)node + INTERNAL_NODE_RIGHT_CHILD_OFFSET);
 }
 
 uint32_t *internal_node_cell(void* node, uint32_t cell_num) 
@@ -75,12 +76,13 @@ uint32_t *internal_node_cell(void* node, uint32_t cell_num)
     return node + INTERNAL_NODE_HEADER_SIZE + cell_num * INTERNAL_NODE_CELL_SIZE;
 }
 
-uint32_t *internal_node_child(void *node, uint32_t child_num) // FAIL
+uint32_t *internal_node_child(void *node, uint32_t child_num) 
 {
     uint32_t num_keys = *internal_node_num_keys(node);
+    
     if (child_num > num_keys) 
     {
-        printf("Tried to access child_num %d > num_keys %d\n", child_num, num_keys);
+        printf("Tried to access child_num %d > num_keys %p\n", child_num, num_keys);
         exit(EXIT_FAILURE);
     } 
     else if (child_num == num_keys) 
@@ -108,23 +110,15 @@ uint32_t *internal_node_child(void *node, uint32_t child_num) // FAIL
 
 uint32_t *internal_node_key(void *node, uint32_t key_num) 
 {
-    return internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE;
+    // return (void*)internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE;
+    return (uint32_t*)((char*)internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE);
 }
 
 void update_internal_node_key(void *node, uint32_t old_key, uint32_t new_key) 
 {
     uint32_t old_child_index = internal_node_find_child(node, old_key);
-    // *internal_node_key(node, old_child_index) = new_key;
      // Добавляем проверку, чтобы убедиться, что ключ найден
-     if (old_child_index < *internal_node_num_keys(node)) 
-     {
-        *internal_node_key(node, old_child_index) = new_key;
-    }
-    else 
-    {
-        // Если ключ не найден, можно выбросить ошибку или выполнить другую логику
-        printf("Error: Old key not found in the internal node.\n");
-    }
+     *internal_node_key(node, old_child_index) = new_key;
 }
 
 
@@ -164,6 +158,7 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
     serialize_row(value, leaf_node_value(node, cursor->cell_num));
 }
 
+
 void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value) 
 {
     /*
@@ -190,7 +185,6 @@ void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value)
     for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) 
     {
         void *destination_node;
-
         if (i >= LEAF_NODE_LEFT_SPLIT_COUNT) 
         {
             destination_node = new_node;
@@ -200,11 +194,13 @@ void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value)
             destination_node = old_node;
         }
         
-        uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;
+        uint32_t index_within_node = i % LEAF_NODE_LEFT_SPLIT_COUNT;    
+       
         void *destination = leaf_node_cell(destination_node, index_within_node);
         
         if (i == cursor->cell_num) 
         {
+
             serialize_row(value, leaf_node_value(destination_node, index_within_node));
             *leaf_node_key(destination_node, index_within_node) = key;
         } 
@@ -220,17 +216,18 @@ void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value)
     /* Update cell count on both leaf nodes */
     *(leaf_node_num_cells(old_node)) = LEAF_NODE_LEFT_SPLIT_COUNT;
     *(leaf_node_num_cells(new_node)) = LEAF_NODE_RIGHT_SPLIT_COUNT;
-    
+ 
     if (is_node_root(old_node)) 
     {
         return create_new_root(cursor->table, new_page_num);
     } 
     else 
-    {
+    {   
         uint32_t parent_page_num = *node_parent(old_node);
         uint32_t new_max = get_node_max_key(cursor->table->pager, old_node);
+
         void* parent = get_page(cursor->table->pager, parent_page_num);
-    
+        
         update_internal_node_key(parent, old_max, new_max);
         internal_node_insert(cursor->table, parent_page_num, new_page_num);
         return;
@@ -257,6 +254,7 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
         initialize_internal_node(right_child);
         initialize_internal_node(left_child);
     }
+
     /* Left child has data copied from old root */
     memcpy(left_child, root, PAGE_SIZE); // Копируем старый корень  в левого ребенка.
     set_node_root(left_child, false); // Отмечаем, что он больше не корень.
@@ -278,7 +276,7 @@ void create_new_root(struct Table *table, uint32_t right_child_page_num)
     set_node_root(root, true); // Обозначаем его как новый корень.
     *internal_node_num_keys(root) = 1; // У нового корня только один ключ.
     *internal_node_child(root, 0) = left_child_page_num; // Первый ребёнок нового корня — это левый узел (старый корень).
-    uint32_t left_child_max_key  = get_node_max_key(table->pager, left_child); // Извлекаем минимальный ключ из правого узла и записываем его в корень.
+    uint32_t left_child_max_key  = get_node_max_key(table->pager, left_child); // Извлекаем максимальный ключ из правого узла и записываем его в корень.
     *internal_node_key(root, 0) = left_child_max_key; // Это ключ, который помогает навигации: всё, что ≤ этому значению — идёт в левое поддерево.
     *internal_node_right_child(root) = right_child_page_num; // Устанавливаем правого ребёнка корня — это тот узел, что получился из сплита.
     *node_parent(left_child) = table->root_page_num;

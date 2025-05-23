@@ -11,6 +11,4 @@ assets
 *.tmp
 
 # DB
-mydb.db
-test.db
-test.rb
+*.db

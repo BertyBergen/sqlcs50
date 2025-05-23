@@ -75,7 +75,9 @@ void *get_page(Pager *pager, uint32_t page_num)
                 exit(EXIT_FAILURE);
             }
         }
+        
         pager->pages[page_num] = page;
+
         if (page_num >= pager->num_pages) {
             pager->num_pages = page_num + 1;
         }
@@ -166,12 +168,3 @@ uint32_t get_node_max_key(Pager *pager, void *node)
     return get_node_max_key(pager, right_child);
 }
 
-uint32_t get_node_min_key(Pager *pager, void *node) 
-{
-    if (get_node_type(node) == NODE_LEAF) 
-    {
-        return *leaf_node_key(node, 0);
-    }
-    void* left_child = get_page(pager, *internal_node_child(node, 0));
-    return get_node_min_key(pager, left_child);
-}

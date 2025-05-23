@@ -11,7 +11,7 @@ typedef enum {
 
 typedef struct {
     StatementType type;
-    Row row_to_insert; // только для оператора вставки
+    Row row_to_insert; // only used by insert statement
 } Statement;
 
 #endif

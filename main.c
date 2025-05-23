@@ -20,8 +20,8 @@ int main(int argc, char* argv[])
 
     InputBuffer* input_buffer = new_input_buffer();
 
-    while (true) {
-
+    while (true) 
+    {
         read_input(input_buffer);
         
         if (input_buffer->buffer[0] == '.') 

@@ -9,10 +9,9 @@ typedef enum { NODE_INTERNAL, NODE_LEAF} NodeType;
 
 typedef struct f{// Layout  Каждая строка (Row) занимает строго фиксированный размер: id (4 байта), username (32), email (255).
     uint32_t id; // Используем оффсеты для записи/чтения: ID_OFFSET, USERNAME_OFFSET и т.д.
-    char username[COLUMN_USERNAME_SIZE + 1]; // Такой layout нужен для бинарной сериализации.
+    char username[COLUMN_USERNAME_SIZE + 1]; // Такой layout нужен для бинарной сериализации. \0
     char email[COLUMN_EMAIL_SIZE + 1];
-} Row;  
-
+} Row;
 
 extern const uint32_t ID_SIZE;
 extern const uint32_t USERNAME_SIZE;
@@ -59,6 +58,7 @@ extern const uint32_t INTERNAL_NODE_KEY_SIZE;
 extern const uint32_t INTERNAL_NODE_CHILD_SIZE;
 extern const uint32_t INTERNAL_NODE_CELL_SIZE;
 extern const uint32_t INTERNAL_NODE_MAX_KEYS;
+
 
 void serialize_row(Row *source, void *destination);
 void deserialize_row(void *source, Row *destination);

@@ -149,14 +149,15 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
     // Получаем указатели на родительскую и дочернюю страницы
     void *parent = get_page(table->pager, parent_page_num);
     void *child = get_page(table->pager, child_page_num);
-    
+
     // Получаем max ключ из дочернего узла
-     uint32_t child_max_key = get_node_max_key(table->pager, child);
+    uint32_t child_max_key = get_node_max_key(table->pager, child);
     // Находим индекс в родителе, куда вставлять ключ
     uint32_t index = internal_node_find_child(parent, child_max_key);
     // Получаем текущее количество ключей в родителе
     uint32_t original_num_keys = *internal_node_num_keys(parent);
     // Если родитель переполнен, вызываем split
+    
     if (original_num_keys >= INTERNAL_NODE_MAX_KEYS) 
     {
         internal_node_split_and_insert(table, parent_page_num, child_page_num);
@@ -178,10 +179,11 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
     and immediately calling internal_node_split_and_insert has the effect
     of creating a new key at (max_cells + 1) with an uninitialized value
     */
-    // Увеличиваем количество ключей
-    *internal_node_num_keys(parent) = original_num_keys + 1;
-    if (child_max_key > get_node_max_key(table->pager, right_child)) 
-    {
+   // Увеличиваем количество ключей
+   *internal_node_num_keys(parent) = original_num_keys + 1;
+
+   if (child_max_key > get_node_max_key(table->pager, right_child)) 
+   {
         /* Replace right child */
         *internal_node_child(parent, original_num_keys) = right_child_page_num;
         *internal_node_key(parent, original_num_keys) = get_node_max_key(table->pager, right_child);
@@ -216,22 +218,21 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     uint32_t new_page_num = get_unused_page_num(table->pager);
     
     /*
-    Declaring a flag before updating pointers which
-    records whether this operation involves splitting the root -
-    if it does, we will insert our newly created node during
-    the step where the table's new root is created. If it does
-    not, we have to insert the newly created node into its parent
-    after the old node's keys have been transferred over. We are not
-    able to do this if the newly created node's parent is not a newly
-    initialized root node, because in that case its parent may have existing
-    keys aside from our old node which we are splitting. If that is true, we
-    need to find a place for our newly created node in its parent, and we
-    cannot insert it at the correct index if it does not yet have any keys
+    Объявление флага перед обновлением указателей, который 
+    записывает, включает ли эта операция разделение корня -
+    если это так, мы вставим наш новый созданный узел во время
+    шага, на котором создается новый корень таблицы. Если это не так, мы должны вставить новый созданный узел в его родительский
+    после того, как ключи старого узла были переданы. Мы не
+    можем сделать это, если родительский узел нового созданного узла не является новым
+    инициализированным корневым узлом, потому что в этом случае его родительский узел может иметь существующие
+    ключи помимо нашего старого узла, который мы разделяем. Если это так, нам
+    нужно найти место для нашего нового созданного узла в его родительском узле, и мы
+    не можем вставить его по правильному индексу, если у него еще нет никаких ключей
     */
     // Проверяем, сплитим ли корень
     uint32_t splitting_root = is_node_root(old_node);
 
-    void* parent;
+    uint32_t* parent;
     void* new_node;
 
     if (splitting_root) 
@@ -239,7 +240,6 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
         // Если мы сплитим корень, создаём новый корень
         create_new_root(table, new_page_num);
         parent = get_page(table->pager, table->root_page_num);
-      
         // После создания нового корня, обновляем old_node (он теперь левый ребенок нового корня)
         /*
         If we are splitting the root, we need to update old_node to point
