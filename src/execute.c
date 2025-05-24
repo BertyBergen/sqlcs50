@@ -38,7 +38,6 @@ ExecuteResult execute_select(Statement *statement, Table *table)
         print_row(&row);    
         cursor_advance(cursor);
     }
-    printf("ROOT PAGE NUM- %d \n",  table->root_page_num);
     free(cursor);
     
     return EXECUTE_SUCCESS;

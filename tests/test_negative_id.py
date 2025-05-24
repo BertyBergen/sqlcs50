@@ -2,7 +2,6 @@ import unittest
 import os
 from run_script import run_script
 
-
 test_name = os.path.basename(__file__)
 class TestNegativeID(unittest.TestCase):
     def test_if_id_is_negative(self):

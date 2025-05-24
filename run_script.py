@@ -1,14 +1,14 @@
 import subprocess
 import os
 
-def run_script(commands, test_name, unit_test_name="default_test"):
+def run_script(commands, test_name, unit_test_name="default_test", overwrite=True):
     db_dir = os.path.join("./tests/tests_output", test_name)
     os.makedirs(db_dir, exist_ok=True)
     
     db_filename = os.path.join(db_dir, f"{unit_test_name}.db")
 
-    # Удаляем старый файл, если есть
-    if os.path.exists(db_filename):
+    # Удаляем старый файл, если есть\
+    if overwrite and os.path.exists(db_filename):
         os.remove(db_filename)
 
     input_script = "\n".join(commands) + "\n"

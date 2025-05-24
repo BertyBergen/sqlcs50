@@ -1,8 +1,11 @@
 import unittest
+import os
 from run_script import run_script, clean_output
 
+
+test_name = os.path.basename(__file__)
 class TestLongStrings(unittest.TestCase):
-    def test_allows_inserting_strings_that_are_max_length(self):
+    def test_inserting_max_length_strings(self):
         long_username = "a" * 32
         long_email = "a" * 255
         script = [
@@ -10,16 +13,10 @@ class TestLongStrings(unittest.TestCase):
             "select;",
             ".exit;",
         ]
-        result = run_script(script)
-        cleaned = clean_output(result)
-        self.assertEqual(cleaned, [
-            "Executed.",
-            f"(1, {long_username}, {long_email})",
-            "Executed.",
-            "",
-        ])
+        result = run_script(script,test_name, "test_inserting_max_length_strings")        
+        self.assertEqual(["sqlcs50> Executed.",f"sqlcs50> (1, {long_username}, {long_email})", "Executed.", "sqlcs50>"], result)
 
-    def test_prints_error_message_if_strings_are_too_long(self):
+    def test_error_message_if_strings_are_too_long(self):
         long_username = "a" * 33
         long_email = "a" * 256
         script = [
@@ -27,5 +24,6 @@ class TestLongStrings(unittest.TestCase):
             "select;",
             ".exit;",
         ]
-        result = run_script(script)
-        self.assertIn("sqlcs50 > String is too long.", result)
+        result = run_script(script,test_name, "test_error_message_if_strings_are_too_long")
+        self.assertIn("sqlcs50> String is too long.", result)
+

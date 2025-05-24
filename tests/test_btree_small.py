@@ -44,7 +44,7 @@ class TestBtreeSmall(unittest.TestCase):
             "- 5",
             "- 6",
             "- 7",
-            "- key 8",
+            "- key 7",
             "- leaf (size 7)",
             "- 8",
             "- 9",

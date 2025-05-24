@@ -1,22 +1,21 @@
 import unittest
+import os
 from run_script import run_script, clean_output
 
+test_name = os.path.basename(__file__)
+
 class TestKeepsData(unittest.TestCase):
-    def test_keeps_data_after_closing_connection(self):
+    def test_data_after_closing(self):
         result1 = run_script([
             "insert 1 user1 person1@example.com;",
-            ".exit;",
-        ])
-        cleaned1 = clean_output(result1)
-        self.assertEqual(cleaned1, ["Executed.", ""])
+            ".exit;", 
+        ], test_name,
+            "test_data_after_closing")
+        self.assertEqual(result1, ["sqlcs50> Executed.", "sqlcs50>"])
 
         result2 = run_script([
             "select;",
             ".exit;",
-        ])
-        cleaned2 = clean_output(result2)
-        self.assertEqual(cleaned2, [
-            "(1, user1, person1@example.com)",
-            "Executed.",
-            "",
-        ])
+        ], test_name, "test_data_after_closing", overwrite=False)
+        self.assertEqual(result2, ['sqlcs50> (1, user1, person1@example.com)', 'Executed.', 'sqlcs50>'])
+
