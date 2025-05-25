@@ -63,6 +63,9 @@ int main(int argc, char* argv[])
             case (EXECUTE_DUPLICATE_KEY):
                 printf("Error: Duplicate key.\n");
                 break;
+            case (EXECUTE_NO_ID):
+                printf("Error: Id not found.\n");
+                break;
         }
     }
 }

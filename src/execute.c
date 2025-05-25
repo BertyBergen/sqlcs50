@@ -67,8 +67,7 @@ ExecuteResult execute_delete(Statement *statement, Table *table)
             return EXECUTE_SUCCESS;
         }
     }
-    printf("PIZDA \n");
-    return EXECUTE_DUPLICATE_KEY;
+    return EXECUTE_NO_ID;
 }
 
 ExecuteResult execute_statement(Statement *statement, Table *table) 
