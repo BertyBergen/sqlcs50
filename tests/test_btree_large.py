@@ -155,8 +155,6 @@ class TestBtreeLarge(unittest.TestCase):
                 ".btree;",
                 ".exit;"]
             result = run_script(script, test_name, "test_seven_leaf_node_btree")
-            print("\n".join(result))
-            print("SUMMMM",sum(1 for res in result if res == "sqlcs50> Executed."))
             expected_output = ["sqlcs50> Executed."] * 64        
             expected_output += [
                 "sqlcs50> Tree:",
@@ -246,4 +244,3 @@ class TestBtreeLarge(unittest.TestCase):
             self.assertEqual(result, expected_output)
             
             print(len(expected_output))
-

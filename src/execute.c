@@ -34,13 +34,41 @@ ExecuteResult execute_select(Statement *statement, Table *table)
     
     Row row;
     while (!(cursor->end_of_table)) {
+        
         deserialize_row(cursor_value(cursor), &row);
-        print_row(&row);    
+        if (!row.is_deleted)
+        {
+            print_row(&row);    
+        }
+        
         cursor_advance(cursor);
     }
     free(cursor);
     
     return EXECUTE_SUCCESS;
+}
+
+ExecuteResult execute_delete(Statement *statement, Table *table)
+{
+    uint32_t id_to_delete = statement->id_to_delete;
+    Cursor *cursor = table_find(table, id_to_delete);
+    void* node = get_page(table->pager, cursor->page_num);
+    uint32_t num_cells = (*leaf_node_num_cells(node));
+
+    if (cursor->cell_num < num_cells) 
+    {
+        uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);
+        if (key_at_index == id_to_delete) 
+        {
+            void* value = leaf_node_value(node, cursor->cell_num);
+            Row* row = value;
+            row->is_deleted = 1;
+            printf("You deleted %d \n", key_at_index);
+            return EXECUTE_SUCCESS;
+        }
+    }
+    printf("PIZDA \n");
+    return EXECUTE_DUPLICATE_KEY;
 }
 
 ExecuteResult execute_statement(Statement *statement, Table *table) 
@@ -50,6 +78,8 @@ ExecuteResult execute_statement(Statement *statement, Table *table)
             return execute_insert(statement, table);
         case (STATEMENT_SELECT):
             return execute_select(statement, table);
+        case (STATEMENT_DELETE):
+            return execute_delete(statement, table);
     }
 }
 

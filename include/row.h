@@ -11,15 +11,18 @@ typedef struct f{// Layout  Каждая строка (Row) занимает с�
     uint32_t id; // Используем оффсеты для записи/чтения: ID_OFFSET, USERNAME_OFFSET и т.д.
     char username[COLUMN_USERNAME_SIZE + 1]; // Такой layout нужен для бинарной сериализации. \0
     char email[COLUMN_EMAIL_SIZE + 1];
+    uint8_t is_deleted; // битовая маска?  Нужно будет подумать над этим.
 } Row;
 
 extern const uint32_t ID_SIZE;
 extern const uint32_t USERNAME_SIZE;
 extern const uint32_t EMAIL_SIZE;
+extern const uint8_t DELETED_SIZE;
 
 extern const uint32_t ID_OFFSET;
 extern const uint32_t USERNAME_OFFSET;
 extern const uint32_t EMAIL_OFFSET;
+extern const uint32_t DELETED_OFFSET;
 extern const uint32_t ROW_SIZE;
 
 extern const uint32_t ROWS_PER_PAGE;
