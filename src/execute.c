@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/execute.h"
 
 ExecuteResult execute_insert(Statement *statement, Table *table) 
@@ -43,6 +44,7 @@ ExecuteResult execute_select(Statement *statement, Table *table)
         
         cursor_advance(cursor);
     }
+
     free(cursor);
     
     return EXECUTE_SUCCESS;
@@ -67,9 +69,37 @@ ExecuteResult execute_delete(Statement *statement, Table *table)
             return EXECUTE_SUCCESS;
         }
     }
+    free(cursor);
     return EXECUTE_NO_ID;
 }
 
+ExecuteResult execute_update(Statement *statement, Table *table)
+{
+    Row *row_to_update = &(statement->row_to_insert);
+    uint32_t key_to_update = row_to_update->id;
+    Cursor *cursor = table_find(table, key_to_update);
+
+    void* node = get_page(table->pager, cursor->page_num);
+    uint32_t num_cells = (*leaf_node_num_cells(node));
+
+    if (cursor->cell_num < num_cells) 
+    {
+        uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);
+        if (key_at_index == key_to_update) 
+        {
+            void* value = leaf_node_value(node, cursor->cell_num);
+            Row* row = value;
+            strcpy(row->username, row_to_update->username);
+            strcpy(row->email, row_to_update->email);
+            printf("You updated %d \n", key_at_index);
+            return EXECUTE_SUCCESS;
+        }
+    }
+
+    free(cursor);
+    
+    return EXECUTE_SUCCESS;
+}
 ExecuteResult execute_statement(Statement *statement, Table *table) 
 {
     switch (statement->type) {
@@ -79,6 +109,8 @@ ExecuteResult execute_statement(Statement *statement, Table *table)
             return execute_select(statement, table);
         case (STATEMENT_DELETE):
             return execute_delete(statement, table);
+        case (STATEMENT_UPDATE):
+            return execute_update(statement, table);
     }
 }
 

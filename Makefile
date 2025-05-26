@@ -2,7 +2,7 @@
 CC = gcc
 
 # Опции компилятора
-CFLAGS = -Wall -Wextra -pedantic -std=c99
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -g
 
 # Пути для поиска заголовочных файлов
 INCLUDES = -I./include
