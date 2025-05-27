@@ -1,5 +1,8 @@
 README.md: Убедись, что файл содержит:
 
+Lightweight database engine in C with B-tree storage, inspired by SQLite.
+Supports INSERT, SELECT, UPDATE, DELETE, multiple tables with dynamic schema switching.
+
 Название проекта.
 
 Ссылку на видеопрезентацию.

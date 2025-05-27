@@ -67,3 +67,15 @@ void db_close(Table *table)
     free(pager);
     free(table);
 }
+
+int find_table_by_name(const char *name, DatabaseSchema *schema) 
+{
+    for (int i = 0; i < schema->table_count; i++) 
+    {
+        if (strcmp(schema->table_metadatas[i].name, name) == 0) 
+        {
+            return i;
+        }
+    }
+    return -1;
+}
