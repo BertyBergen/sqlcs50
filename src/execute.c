@@ -29,7 +29,7 @@ ExecuteResult execute_insert(Statement *statement, Table *table)
     return EXECUTE_SUCCESS;
 }
 
-ExecuteResult execute_select(Statement *statement, Table *table) 
+ExecuteResult execute_select(Table *table) 
 {
     Cursor *cursor = table_start(table);
     
@@ -98,7 +98,7 @@ ExecuteResult execute_update(Statement *statement, Table *table)
 
     free(cursor);
     
-    return EXECUTE_SUCCESS;
+    return EXECUTE_NO_ID;
 }
 ExecuteResult execute_statement(Statement *statement, Table *table) 
 {
@@ -106,11 +106,12 @@ ExecuteResult execute_statement(Statement *statement, Table *table)
         case (STATEMENT_INSERT):
             return execute_insert(statement, table);
         case (STATEMENT_SELECT):
-            return execute_select(statement, table);
+            return execute_select(table);
         case (STATEMENT_DELETE):
             return execute_delete(statement, table);
         case (STATEMENT_UPDATE):
             return execute_update(statement, table);
+        default:
+            return EXECUTE_FAILURE;
     }
 }
-

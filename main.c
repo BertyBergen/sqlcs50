@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
             case PREPARE_UNRECOGNIZED_STATEMENT:
                 printf("Unrecognized keyword at start of '%s'.\n", input_buffer->buffer);
                 continue;
+     
         }
 
         switch (execute_statement(&statement, table)) 

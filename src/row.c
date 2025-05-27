@@ -62,18 +62,18 @@ const uint32_t INTERNAL_NODE_MAX_KEYS = 3; //  Сделаем интеракти
 
 void serialize_row(Row *source, void *destination) 
 {
-    memcpy(destination + ID_OFFSET, &(source->id), ID_SIZE);
-    memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
-    memcpy(destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
-    memcpy(destination + DELETED_OFFSET, &(source->is_deleted), DELETED_SIZE);
+    memcpy((char *)destination + ID_OFFSET, &(source->id), ID_SIZE);
+    memcpy((char *)destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
+    memcpy((char *)destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
+    memcpy((char *)destination + DELETED_OFFSET, &(source->is_deleted), DELETED_SIZE);
 }
 
 void deserialize_row(void *source, Row *destination) 
 {
-    memcpy(&(destination->id), source + ID_OFFSET, ID_SIZE);
-    memcpy(&(destination->username), source + USERNAME_OFFSET, USERNAME_SIZE);
-    memcpy(&(destination->email), source + EMAIL_OFFSET, EMAIL_SIZE);
-    memcpy(&(destination->is_deleted), source + DELETED_OFFSET, DELETED_SIZE);
+    memcpy(&(destination->id), (char *)source + ID_OFFSET, ID_SIZE);
+    memcpy(&(destination->username), (char *)source + USERNAME_OFFSET, USERNAME_SIZE);
+    memcpy(&(destination->email), (char *)source + EMAIL_OFFSET, EMAIL_SIZE);
+    memcpy(&(destination->is_deleted), (char *)source + DELETED_OFFSET, DELETED_SIZE);
 }
 
 void print_row(Row *row) 

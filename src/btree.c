@@ -6,19 +6,17 @@
 
 uint32_t *leaf_node_num_cells(void *node) 
 {
-    return node + LEAF_NODE_NUM_CELLS_OFFSET;
-    // (uint32_t*)((char*)node
+    return (uint32_t*)((char*)node + LEAF_NODE_NUM_CELLS_OFFSET);
 }
 
 uint32_t *leaf_node_next_leaf(void *node) 
 {
-    return node + LEAF_NODE_NEXT_LEAF_OFFSET;
+    return (uint32_t*)((char*)node + LEAF_NODE_NEXT_LEAF_OFFSET);
 }
-
 // Возвращает указатель на начало ячейки с номером cell_num
 void *leaf_node_cell(void *node, uint32_t cell_num) 
 {
-    return node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
+    return (uint32_t*)((char*)node + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE);
 }
 
 // Возвращает указатель на ключ в ячейке
@@ -30,36 +28,37 @@ uint32_t *leaf_node_key(void *node, uint32_t cell_num)
 // Возвращает указатель на значение в ячейке
 void *leaf_node_value(void *node, uint32_t cell_num)
 {
-    return leaf_node_cell(node, cell_num) + LEAF_NODE_KEY_SIZE;
+    return (void *)((uint8_t *)leaf_node_cell(node, cell_num) + LEAF_NODE_KEY_SIZE);
 }
 
 NodeType get_node_type(void *node) 
 {
-    uint8_t value = *((uint8_t*)(node + NODE_TYPE_OFFSET));
+    uint8_t value = *((uint8_t*)((char*)node + NODE_TYPE_OFFSET));
     return (NodeType)value;
 }
     
 void set_node_type(void *node, NodeType type) 
 {
     uint8_t value = type;
-    *((uint8_t*)(node + NODE_TYPE_OFFSET)) = value;
+    *((uint8_t*)((char*)node + NODE_TYPE_OFFSET)) = value;
 }
 
 bool is_node_root(void *node) 
 {
-    uint8_t value = *((uint8_t*)(node + IS_ROOT_OFFSET));
+    uint8_t value = *((uint8_t*)((char*)node + IS_ROOT_OFFSET));
     return (bool)value;
 }
     
 void set_node_root(void *node, bool is_root) 
 {
     uint8_t value = is_root;
-    *((uint8_t*)(node + IS_ROOT_OFFSET)) = value;
+    *((uint8_t*)((char*)node + IS_ROOT_OFFSET)) = value;
 }
 
 uint32_t *node_parent(void *node) 
 { 
-    return node + PARENT_POINTER_OFFSET; 
+
+    return (uint32_t*)((char*)node + PARENT_POINTER_OFFSET);
 }
 uint32_t *internal_node_num_keys(void *node) 
 {
@@ -73,7 +72,7 @@ uint32_t *internal_node_right_child(void* node)
 
 uint32_t *internal_node_cell(void* node, uint32_t cell_num) 
 {
-    return node + INTERNAL_NODE_HEADER_SIZE + cell_num * INTERNAL_NODE_CELL_SIZE;
+    return (uint32_t*)((char*)node + INTERNAL_NODE_HEADER_SIZE + cell_num * INTERNAL_NODE_CELL_SIZE);
 }
 
 uint32_t *internal_node_child(void *node, uint32_t child_num) 
@@ -82,7 +81,7 @@ uint32_t *internal_node_child(void *node, uint32_t child_num)
     
     if (child_num > num_keys) 
     {
-        printf("Tried to access child_num %d > num_keys %p\n", child_num, num_keys);
+        printf("Tried to access child_num %d > num_keys %u\n", child_num, num_keys);
         exit(EXIT_FAILURE);
     } 
     else if (child_num == num_keys) 
@@ -110,7 +109,6 @@ uint32_t *internal_node_child(void *node, uint32_t child_num)
 
 uint32_t *internal_node_key(void *node, uint32_t key_num) 
 {
-    // return (void*)internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE;
     return (uint32_t*)((char*)internal_node_cell(node, key_num) + INTERNAL_NODE_CHILD_SIZE);
 }
 
@@ -206,11 +204,11 @@ void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value)
         } 
         else if (i > cursor->cell_num) 
         {
-            memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
+            memcpy((char *)destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
         } 
         else 
         {
-            memcpy(destination, leaf_node_cell(old_node, i), LEAF_NODE_CELL_SIZE);
+            memcpy((char *)destination, leaf_node_cell(old_node, i), LEAF_NODE_CELL_SIZE);
         }
     }
     /* Update cell count on both leaf nodes */
@@ -219,7 +217,8 @@ void leaf_node_split_and_insert(Cursor *cursor, uint32_t key, Row *value)
  
     if (is_node_root(old_node)) 
     {
-        return create_new_root(cursor->table, new_page_num);
+        create_new_root(cursor->table, new_page_num);
+        return; 
     } 
     else 
     {   

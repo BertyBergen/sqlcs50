@@ -9,6 +9,7 @@ typedef enum {
     STATEMENT_SELECT,
     STATEMENT_DELETE,
     STATEMENT_UPDATE,
+    EXECUTE_FAILURE
 } StatementType;
 
 typedef struct {
