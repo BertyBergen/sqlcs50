@@ -5,7 +5,6 @@
 
 ExecuteResult execute_insert(Statement *statement, Table *table) 
 {
-
     Row *row_to_insert = &(statement->row_to_insert);
     uint32_t key_to_insert = row_to_insert->id;
     Cursor *cursor = table_find(table, key_to_insert);
@@ -29,11 +28,14 @@ ExecuteResult execute_insert(Statement *statement, Table *table)
     return EXECUTE_SUCCESS;
 }
 
-ExecuteResult execute_select(Table *table) 
+ExecuteResult execute_select(Database *db) 
 {
+    Table *table = db->current_table;
+
     Cursor *cursor = table_start(table);
     
     Row row;
+    
     while (!(cursor->end_of_table)) {
         
         deserialize_row(cursor_value(cursor), &row);
@@ -44,7 +46,12 @@ ExecuteResult execute_select(Table *table)
         
         cursor_advance(cursor);
     }
-
+    printf("Table count %d \n", db->schema.table_count);
+    for (uint8_t i = 0; i < db->schema.table_count; i++)
+    {
+        printf("Table names %s \n", db->schema.tables[i].name);
+    }
+    
     free(cursor);
     
     return EXECUTE_SUCCESS;
@@ -100,13 +107,15 @@ ExecuteResult execute_update(Statement *statement, Table *table)
     
     return EXECUTE_NO_ID;
 }
-ExecuteResult execute_statement(Statement *statement, Table *table) 
+ExecuteResult execute_statement(Statement *statement, Database *db) 
 {
+    Table *table = db->current_table;
+    
     switch (statement->type) {
         case (STATEMENT_INSERT):
             return execute_insert(statement, table);
         case (STATEMENT_SELECT):
-            return execute_select(table);
+            return execute_select(db);
         case (STATEMENT_DELETE):
             return execute_delete(statement, table);
         case (STATEMENT_UPDATE):

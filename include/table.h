@@ -10,18 +10,25 @@ typedef struct Table {
 } Table;
 
 typedef struct {
-    char name[32];
+    char name[MAX_TABLE_NAME + 1];
     uint32_t root_page_num;
 } TableMetadata;
 
 typedef struct {
-    TableMetadata table_metadatas[64];
+    TableMetadata tables[MAX_TABLES];
     uint32_t table_count;
 } DatabaseSchema;
 
-Table* db_open(const char *filename);
+typedef struct {
+    Pager *pager;
+    DatabaseSchema schema;
+    Table *current_table;
+} Database;
+
+Database *database_open(const char *filename);
+void database_create_table(Database *db, const char *name);
+Table *database_get_table(Database *db, const char *name);
 void print_row(Row* row);
-void db_close(Table* table) ;
-int find_table_by_name(const char *name, DatabaseSchema *schema);
+void database_close(Database *db);
 
 #endif

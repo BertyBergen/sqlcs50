@@ -7,7 +7,7 @@ PrepareResult prepare_insert(InputBuffer *input_buffer, Statement *statement)
 { 
     statement->type = STATEMENT_INSERT;
 
-    // char* keyword = strtok(input_buffer->buffer, " ");
+    char* keyword = strtok(input_buffer->buffer, " ");
     char* id_string = strtok(NULL, " ");
     char* username = strtok(NULL, " ");
     char* email = strtok(NULL, " ");
@@ -42,7 +42,7 @@ PrepareResult prepare_insert(InputBuffer *input_buffer, Statement *statement)
 PrepareResult prepare_delete(InputBuffer *input_buffer, Statement *statement) 
 {
     statement->type = STATEMENT_DELETE;
-    // char* keyword = strtok(input_buffer->buffer, " ");
+    char* keyword = strtok(input_buffer->buffer, " ");
     char* id_string = strtok(NULL, " ");
     
     if (id_string == NULL) 
@@ -64,7 +64,7 @@ PrepareResult prepare_update(InputBuffer *input_buffer, Statement *statement)
 { 
     statement->type = STATEMENT_UPDATE;
 
-    // char* keyword = strtok(input_buffer->buffer, " ");
+    char* keyword = strtok(input_buffer->buffer, " ");
     char* id_string = strtok(NULL, " ");
     char* username = strtok(NULL, " ");
     char* email = strtok(NULL, " ");

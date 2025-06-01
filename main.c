@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     }
     
     char *filename = argv[1];
-    Table *table = db_open(filename);
+    Database *db = database_open(filename);
 
     InputBuffer* input_buffer = new_input_buffer();
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
         
         if (input_buffer->buffer[0] == '.') 
         {
-            switch (do_meta_command(input_buffer, table)) 
+            switch (do_meta_command(input_buffer, db)) 
             {
                 case META_COMMAND_SUCCESS:
                     continue;
@@ -55,8 +55,13 @@ int main(int argc, char* argv[])
                 continue;
      
         }
+        
+        if (db->current_table == NULL) {
+            printf("No table selected. Use '.use <table_name>'\n");
+            continue;
+        }
 
-        switch (execute_statement(&statement, table)) 
+        switch (execute_statement(&statement, db)) 
         {
             case EXECUTE_SUCCESS:
                 printf("Executed.\n");

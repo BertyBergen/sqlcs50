@@ -13,7 +13,7 @@ typedef enum
 } ExecuteResult;
 
 ExecuteResult execute_insert(Statement* statement, Table* table);
-ExecuteResult execute_select(Table* table);
-ExecuteResult execute_statement(Statement* statement, Table *table);
+ExecuteResult execute_select(Database* db);
+ExecuteResult execute_statement(Statement* statement, Database *db);
 
 #endif
