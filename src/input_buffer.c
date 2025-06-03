@@ -62,10 +62,21 @@ ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
 
     print_prompt(new_command);
 
+    bool is_meta_command =  false;
 
     while ((c = fgetc(stream)) != EOF) {
         
-        if (c == ';')
+        if (i == 0 && c == '.')
+        {
+            is_meta_command = true;
+        }
+
+        if (is_meta_command && c == '\n')
+        {
+            break;
+        }
+        
+        if (!is_meta_command &&  c == ';')
         {
             break;
         }

@@ -50,6 +50,7 @@ ExecuteResult execute_select(Database *db)
     for (uint8_t i = 0; i < db->schema.table_count; i++)
     {
         printf("Table names %s \n", db->schema.tables[i].name);
+        printf("Table root page nums %d \n", db->schema.tables[i].root_page_num);
     }
     
     free(cursor);

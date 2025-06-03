@@ -2,6 +2,16 @@
 #include <string.h>
 #include "../include/meta_commands.h"
 
+static MetaCommand meta_commands[] = {
+    {".exit -- ", "Close the program"},
+    {".quit -- ", "Close the program"},
+    {".tables -- ","List all tables"},
+    {".show -- ","Show schema and current table"},
+    {".use <na me>  --","Select or create table"},
+    {".btree -- ","Show btree"},
+    {".constants -- ","Show constants"},
+    };
+ 
 MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db) 
 {
     if (strncmp(input_buffer->buffer, ".use", 4) == 0) 
@@ -67,6 +77,27 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
         }
         return META_COMMAND_SUCCESS;
     }
+    else if (strcmp(input_buffer->buffer, ".tables") == 0) 
+    {
+        printf("Tables count: %d\n", db->schema.table_count);
+
+        for (uint8_t i = 0; i < db->schema.table_count; i++)
+        {
+            printf("%s\n", db->schema.tables[i].name);
+        }
+        return META_COMMAND_SUCCESS;
+    }
+    else if (strcmp(input_buffer->buffer, ".help") == 0) 
+    {
+
+        printf("Meta-commands: \n");
+        for (uint8_t i = 0; i < db->schema.table_count; i++)
+        {
+            printf("%s %s \n", meta_commands[i].name,  meta_commands[i].description);
+        }
+        return META_COMMAND_SUCCESS;
+    }
+    
     else 
     {
         return META_COMMAND_UNRECOGNIZED_COMMAND;

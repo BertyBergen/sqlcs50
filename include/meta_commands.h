@@ -10,6 +10,11 @@ typedef enum {
     META_COMMAND_UNRECOGNIZED_COMMAND
 } MetaCommandResult;
 
+typedef struct {
+    const char *name;
+    const char *description;
+} MetaCommand;
+
 
 MetaCommandResult do_meta_command(InputBuffer* input_buffer, Database *db);
 
