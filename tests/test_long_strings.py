@@ -11,7 +11,7 @@ class TestLongStrings(unittest.TestCase):
         script = [
             f"insert 1 {long_username} {long_email};",
             "select;",
-            ".exit;",
+            ".exit",
         ]
         result = run_script(script,test_name, "test_inserting_max_length_strings")        
         self.assertEqual(["sqlcs50> Executed.",f"sqlcs50> (1, {long_username}, {long_email})", "Executed.", "sqlcs50>"], result)

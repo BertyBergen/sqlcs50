@@ -100,3 +100,31 @@ void database_close(Database *db)
     free(pager);
     free(db);
 }
+
+bool database_drop_table(Database *db, const char *table_name) 
+{
+    DatabaseSchema *schema = &db->schema;
+    int idx = -1;
+    for (int i = 0; i < schema->table_count; i++) {
+        if (strcmp(schema->tables[i].name, table_name) == 0) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx == -1) {
+        return false; // Таблица не найдена
+    }
+
+    // Сдвигаем остальные таблицы
+    for (int i = idx; i < schema->table_count - 1; i++) {
+        schema->tables[i] = schema->tables[i + 1];
+    }
+    schema->table_count--;
+
+    // Записываем обратно схему в страницу 0
+    void *schema_page = get_page(db->pager, 0);
+    memcpy(schema_page, schema, sizeof(DatabaseSchema));
+
+    // TODO: освободить страницы таблицы (если есть механика)
+    return true;
+}

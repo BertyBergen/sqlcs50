@@ -3,11 +3,10 @@
 #include "../include/meta_commands.h"
 
 static MetaCommand meta_commands[] = {
-    {".exit -- ", "Close the program"},
-    {".quit -- ", "Close the program"},
+    {".exit, .quit -- ", "Close the program"},
     {".tables -- ","List all tables"},
     {".show -- ","Show schema and current table"},
-    {".use <na me>  --","Select or create table"},
+    {".use <name>  --","Select or create table"},
     {".btree -- ","Show btree"},
     {".constants -- ","Show constants"},
     };
@@ -20,13 +19,11 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
         table_name[strcspn(table_name, "\n")] = 0;   // убираем \n
     
         Table *table = database_get_table(db, table_name);
-
         if (table == NULL) 
         {
             char response[4];
             int c;
-            while ((c = getchar()) != '\n' && c != EOF);
-
+            
             printf("Table not found. Create it? (y/n): ");
             
             fgets(response, sizeof(response), stdin);
@@ -91,7 +88,9 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
     {
 
         printf("Meta-commands: \n");
-        for (uint8_t i = 0; i < db->schema.table_count; i++)
+        size_t meta_command_count = sizeof(meta_commands)/sizeof(MetaCommand);
+        
+        for (uint8_t i = 0; i < meta_command_count; i++)
         {
             printf("%s %s \n", meta_commands[i].name,  meta_commands[i].description);
         }

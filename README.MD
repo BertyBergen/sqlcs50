@@ -1,28 +1,100 @@
-README.md: Убедись, что файл содержит:
+# CSDB — C SQL Database (educational)
 
-Lightweight database engine in C with B-tree storage, inspired by SQLite.
-Supports INSERT, SELECT, UPDATE, DELETE, multiple tables with dynamic schema switching.
+```
+ _   _      _ _          ____  _____ _____    ____
+| | | | ___| | | ___    / ___|/ ____|  ___|  / __ \
+| |_| |/ _ \ | |/ _ \  | |    | (__ |  |__  | |  | |
+|     | |_|| | | | | | | |    \___ \|___  \ | |  | |
+|  _  |  __/ | | |_| | | |___ ____) |___)  /| |__| |
+|_| |_|\___|_|_|\___/   \____|_____/______/  \____/
 
-Название проекта.
+```
 
-Ссылку на видеопрезентацию.
+## Overview
 
-Подробное описание архитектуры, используемых структур данных и принятых решений.
+sqlcs50 is a minimal SQL database written in C from scratch.
+It replaces key SQL mechanisms: paginig, B-tree, serialization, and perseption data.
+The project is educational - no third-pary librares, no magic, just C and bytes
 
-Инструкции по сборке и запуску проекта.
+## Features
 
-Видеопрезентация: Подготовь короткое видео (до 3 минут), в котором ты:
+- Manual parsing of simple SQL-like commands (insert, select, delete, update)
+- Insert and retrieve rows (INSERT, SELECT)
+- Update rows (UPDATE)
+- Soft deletion of rows (DELETE with is_deleted flag)
+- Custom B-Tree
+- Serialization of rows and binary file storage
+- Meta-commands: `.help`, `.exit`, `.btree`, `.constants`
 
-Представишь себя и свой проект.
+## Build and Run
 
-Покажешь демонстрацию работы программы.
+make
+./csdb <db name>
 
-Объяснишь ключевые технические моменты.
+## Example
 
-Дополнительные фичи: Если есть время и желание, можешь добавить:
+```
+$ ./sqlcs50 mydb.db
+sqlcs50 version 0.1
+Enter ".help" for commands.
 
-Поддержку дополнительных SQL-команд.
+> insert 1 illidan illidan@outland.com;
+> select;
+(1, illidan, illidan@outland.com)
 
-Более сложные типы данных.
+> update 1 illidan stormrage@outland.com;
+> select;
+(1, illidan, stormrage@outland.com)
 
-Оптимизации для повышения производительности.
+> delete 1;
+> select;
+```
+
+## Project Structure
+
+```
+
+├── include/
+│   ├── btree.h
+│   ├── cursor.h
+│   ├── execute.h
+│   ├── input_buffer.h
+│   ├── meta_commands.h
+│   ├── pager.h
+│   ├── prepare.h
+│   ├── row.h
+│   ├── table.h
+├── src/
+│   ├── btree.c
+│   ├── cursor.c
+│   ├── execute.c
+│   ├── input_buffer.c
+│   ├── meta_commands.c
+│   ├── pager.c
+│   ├── prepare.c
+│   ├── row.c
+│   ├── table.c
+├── tests/
+│   ├── tests_output/
+│   │   ├── test_btree_large.py
+│   │   ├── test_btree_small.py
+│   │   ├── test_constants.py
+│   ├── test_btree_large.py
+│   ├── test_btree_small.py
+│   ├── test_constants.py
+│   └── ...
+├── Makefile
+├── main.c
+├── run_script.py
+└── README.md
+```
+
+## Goals
+
+- Understand how a real data storage works at the byte level
+- Learn systems programming: ponters, memory management, file system basics
+- Build SQL prototype
+
+## Author
+
+Bertybergen

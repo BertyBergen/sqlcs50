@@ -8,7 +8,7 @@ class TestKeepsData(unittest.TestCase):
     def test_data_after_closing(self):
         result1 = run_script([
             "insert 1 user1 person1@example.com;",
-            ".exit;", 
+            ".exit", 
         ], test_name,
             "test_data_after_closing")
         self.assertEqual(result1, ["sqlcs50> Executed.", "sqlcs50>"])

@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
     Database *db = database_open(filename);
 
     InputBuffer* input_buffer = new_input_buffer();
+    
+    printf("Welcome to sqlcs50!\n");
+    printf("Type '.help' to see available commands.\n");
+    printf("You can execute SQL statements ending with ';'.\n\n");
 
     while (true) 
     {

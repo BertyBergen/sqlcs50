@@ -9,7 +9,25 @@ ExecuteResult execute_insert(Statement *statement, Table *table)
     uint32_t key_to_insert = row_to_insert->id;
     Cursor *cursor = table_find(table, key_to_insert);
     
-
+    if(!cursor->end_of_table)
+    {
+        Row *existing_row = malloc(sizeof(Row));
+        deserialize_row(cursor_value(cursor), existing_row);
+        printf("EXIST ROW %d, %s",existing_row->id, existing_row->username);
+        
+        if (existing_row->id == row_to_insert->id && existing_row->is_deleted == true)
+        {
+            serialize_row(row_to_insert, cursor_value(cursor));
+            free(existing_row);
+            return EXECUTE_SUCCESS;
+        }
+        if (existing_row->id == row_to_insert->id)
+        {
+            free(existing_row);
+            return EXECUTE_DUPLICATE_KEY;
+        }
+    }
+    
     void* node = get_page(table->pager, cursor->page_num);
     uint32_t num_cells = (*leaf_node_num_cells(node));
 
@@ -46,13 +64,7 @@ ExecuteResult execute_select(Database *db)
         
         cursor_advance(cursor);
     }
-    printf("Table count %d \n", db->schema.table_count);
-    for (uint8_t i = 0; i < db->schema.table_count; i++)
-    {
-        printf("Table names %s \n", db->schema.tables[i].name);
-        printf("Table root page nums %d \n", db->schema.tables[i].root_page_num);
-    }
-    
+
     free(cursor);
     
     return EXECUTE_SUCCESS;

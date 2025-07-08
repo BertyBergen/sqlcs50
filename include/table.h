@@ -2,6 +2,7 @@
 #define TABLE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "pager.h"
 
 typedef struct Table {
@@ -30,5 +31,6 @@ void database_create_table(Database *db, const char *name);
 Table *database_get_table(Database *db, const char *name);
 void print_row(Row* row);
 void database_close(Database *db);
+bool database_drop_table(Database *db, const char *table_name);
 
 #endif

@@ -8,7 +8,7 @@ class TestNegativeID(unittest.TestCase):
         script = [
             "insert -1 sysna kachaka@bar.com;",
             "select;",
-            ".exit;",
+            ".exit",
         ]
         result = run_script(script, test_name,  "test_if_id_is_negative")
         self.assertIn("sqlcs50> ID must be positive.", result)
