@@ -108,7 +108,7 @@ uint32_t internal_node_find_child(void *node, uint32_t key)
 
     // Binary search
     uint32_t min_index = 0;
-    uint32_t max_index = num_keys; /* there is one more child than key */
+    uint32_t max_index = num_keys; // there is one more child than key 
     //Делает бинарный поиск по ключам, чтобы найти, в какого ребёнка спуститься.
     while (min_index != max_index) 
     {

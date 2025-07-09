@@ -96,9 +96,28 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
         }
         return META_COMMAND_SUCCESS;
     }
-    
+
+    else if (strncmp(input_buffer->buffer, ".drop", 5) == 0) 
+    {
+        char *table_name = input_buffer->buffer + 6;
+        table_name[strcspn(table_name, "\n")] = 0;
+
+        if (database_drop_table(db, table_name)) 
+        {
+            printf("Table '%s' dropped.\n", table_name);
+        } 
+        else 
+        {
+            printf("Table '%s' not found.\n", table_name);
+        }
+
+        return META_COMMAND_SUCCESS;
+    }
+     
     else 
     {
         return META_COMMAND_UNRECOGNIZED_COMMAND;
     }
+
+    
 }

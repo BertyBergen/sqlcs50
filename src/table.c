@@ -104,19 +104,26 @@ void database_close(Database *db)
 bool database_drop_table(Database *db, const char *table_name) 
 {
     DatabaseSchema *schema = &db->schema;
+
     int idx = -1;
-    for (int i = 0; i < schema->table_count; i++) {
-        if (strcmp(schema->tables[i].name, table_name) == 0) {
+    
+    for (int i = 0; i < schema->table_count; i++) 
+    {
+        if (strcmp(schema->tables[i].name, table_name) == 0) 
+        {
             idx = i;
             break;
         }
     }
-    if (idx == -1) {
+    
+    if (idx == -1) 
+    {
         return false; // Таблица не найдена
     }
 
     // Сдвигаем остальные таблицы
-    for (int i = idx; i < schema->table_count - 1; i++) {
+    for (int i = idx; i < schema->table_count - 1; i++) 
+    {
         schema->tables[i] = schema->tables[i + 1];
     }
     schema->table_count--;
