@@ -17,7 +17,7 @@ const uint32_t DELETED_OFFSET = EMAIL_OFFSET + EMAIL_SIZE;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE + DELETED_SIZE;
 
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES; // What pages is? It's a cluster of memory cells
+const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * MAX_PAGES; // What pages is? It's a cluster of memory cells
 
 //Common Node Header Layout
 const uint32_t NODE_TYPE_SIZE = sizeof(uint8_t); 

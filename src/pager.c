@@ -38,7 +38,7 @@ Pager *pager_open(const char *filename)
     }
   
     
-    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
+    for (uint32_t i = 0; i < MAX_PAGES; i++)
     {
         pager->pages[i] = NULL;
     }
@@ -48,9 +48,9 @@ Pager *pager_open(const char *filename)
 
 void *get_page(Pager *pager, uint32_t page_num)
 {
-    if (page_num > TABLE_MAX_PAGES)
+    if (page_num > MAX_PAGES)
     {
-        printf("Tried to fetch page number out of bounds. %d > %d\n", page_num, TABLE_MAX_PAGES);
+        printf("Tried to fetch page number out of bounds. %d > %d\n", page_num, MAX_PAGES);
         exit(EXIT_FAILURE);
     }
 
@@ -111,13 +111,20 @@ void pager_flush(Pager *pager, uint32_t page_num)
     }
 }
 
-/*
-Until we start recycling free pages, new pages will always
-go onto the end of the database file
-*/
-uint32_t get_unused_page_num(Pager *pager) 
+uint32_t get_unused_page_num(Pager *pager)  // bimap pages. We got first free page from this bitmap
 { 
-    return pager->num_pages; 
+    uint8_t *bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
+
+    for (uint32_t i = 2; i < MAX_PAGES; i++)
+    {
+        if (((bitmap[i/8]) & (1 << (1 % 8))) == 0)
+        {
+            set_page_used(pager, i);
+            return i;
+        }
+    }
+    printf("No free pages left. \n");
+    exit(EXIT_FAILURE);
 }
 
 void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level) 
@@ -168,3 +175,20 @@ uint32_t get_node_max_key(Pager *pager, void *node)
     return get_node_max_key(pager, right_child);
 }
 
+int is_page_used(Pager *pager, uint32_t page_num)
+{
+    uint8_t *bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
+    return (bitmap[page_num / 8] >> (page_num % 8))&1;
+}
+
+void set_page_used(Pager *pager, uint32_t page_num)
+{
+    uint8_t *bitmap = (uint8_t *) get_page(pager, BITMAP_PAGE_NUM);
+    bitmap[page_num / 8] |= (1 << (page_num % 8));
+}
+
+void set_page_free(Pager* pager, uint32_t page_num) 
+{
+    uint8_t* bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
+    bitmap[page_num / 8] &= ~(1 << (page_num % 8));
+}

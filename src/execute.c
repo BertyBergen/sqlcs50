@@ -13,7 +13,6 @@ ExecuteResult execute_insert(Statement *statement, Table *table)
     {
         Row *existing_row = malloc(sizeof(Row));
         deserialize_row(cursor_value(cursor), existing_row);
-        printf("EXIST ROW %d, %s",existing_row->id, existing_row->username);
         
         if (existing_row->id == row_to_insert->id && existing_row->is_deleted == true)
         {
