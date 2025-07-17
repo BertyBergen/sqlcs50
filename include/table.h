@@ -18,6 +18,7 @@ typedef struct {
 typedef struct {
     TableMetadata tables[MAX_TABLES];
     uint32_t table_count;
+    uint32_t free_page_head;
 } DatabaseSchema;
 
 typedef struct {
@@ -32,6 +33,10 @@ Table *database_get_table(Database *db, const char *name);
 void print_row(Row* row);
 void database_close(Database *db);
 bool database_drop_table(Database *db, const char *table_name);
+
+void add_page_to_freelist(Database* db, uint32_t page_num);
+uint32_t get_freelsit_page(Database *db);
+void set_page_free(Database *db, uint32_t page_num);
 
 #endif
  

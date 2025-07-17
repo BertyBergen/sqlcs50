@@ -42,8 +42,6 @@ Pager *pager_open(const char *filename)
     {
         pager->pages[i] = NULL;
     }
-    pager->free_page_head = 0;
-
     return pager;
 }
 
@@ -116,17 +114,7 @@ void pager_flush(Pager *pager, uint32_t page_num)
 
 uint32_t get_unused_page_num(Pager *pager)  
 { 
-    if (pager->free_page_head == 0) 
-    {
-        return pager->num_pages++;
-    } 
-    else 
-    {
-        uint32_t page_num = pager->free_page_head;
-        void* page = get_page(pager, page_num);
-        pager->free_page_head = *((uint32_t*)page); // next free
-        return page_num;
-    }
+    return pager->num_pages++;
 }
 
 void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level) 
@@ -175,41 +163,4 @@ uint32_t get_node_max_key(Pager *pager, void *node)
     }
     void* right_child = get_page(pager,*internal_node_right_child(node));
     return get_node_max_key(pager, right_child);
-}
-
-void add_page_to_freelist(Pager* pager, uint32_t page_num) 
-{
-    void* page = get_page(pager, page_num);
-    memset(page, 0, PAGE_SIZE); // Clear whole list
-    *((uint32_t*)page) = pager->free_page_head; // Next free sheet
-    pager->free_page_head = page_num;           // update list head
-}
-
-void set_page_free(Pager *pager, uint32_t page_num) 
-{
-    void *node = get_page(pager, page_num);
-    uint32_t num_keys, child;
-    
-    switch (get_node_type(node)) 
-    {
-        case (NODE_LEAF):
-            
-            add_page_to_freelist(pager, page_num);            
-            break;
-
-        case (NODE_INTERNAL):
-            num_keys = *internal_node_num_keys(node);
-            printf("- internal (size %d)\n", num_keys);
-            for (uint32_t i = 0; i < num_keys; i++) 
-            {
-                child = *internal_node_child(node, i);
-                set_page_free(pager, child);
-            
-            }
-            child = *internal_node_right_child(node);
-
-            set_page_free(pager, child);
-            add_page_to_freelist(pager, page_num);
-            break;
-    }
 }

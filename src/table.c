@@ -17,7 +17,7 @@ Database *database_open(const char *filename)
     if (pager->num_pages == 0)
     {
         db->schema.table_count = 0;
-        db->pager->free_page_head = 0;
+        db->schema.free_page_head = 0;
         void *schema_page = get_page(pager, SCHEMA_PAGE);
         memcpy(schema_page, &(db->schema), sizeof(DatabaseSchema));
     }
@@ -39,12 +39,11 @@ void database_create_table(Database *db, const char *name)
         exit(EXIT_FAILURE);
     }
     uint32_t root_page;
-    if (db->pager->free_page_head)
+    if (db->schema.free_page_head)
     {
-        root_page = db->pager->free_page_head;
-        printf("ROOT PAGE %d \n", root_page);
+        root_page = db->schema.free_page_head;
         void *free_page = get_page(db->pager, root_page);
-        db->pager->free_page_head = *(uint32_t*)free_page;
+        db->schema.free_page_head = *(uint32_t*)free_page;
     }
 
     else
@@ -126,7 +125,7 @@ bool database_drop_table(Database *db, const char *table_name)
     {
         if (strcmp(schema->tables[i].name, table_name) == 0) 
         {
-            set_page_free(db->pager, db->schema.tables->root_page_num);
+            set_page_free(db, db->schema.tables->root_page_num);
             idx = i;
             break;
         }
@@ -152,3 +151,47 @@ bool database_drop_table(Database *db, const char *table_name)
     return true;
 }
 
+void add_page_to_freelist(Database *db, uint32_t page_num) 
+{
+    void* page = get_page(db->pager, page_num);
+    memset(page, 0, PAGE_SIZE); // Clear whole list
+    *((uint32_t*)page) = db->schema.free_page_head; // Next free sheet
+    db->schema.free_page_head = page_num;           // update list head
+}
+
+uint32_t get_freelsit_page(Database *db)
+{
+    uint32_t page_num = db->schema.free_page_head;
+    void* page = get_page(db->pager, page_num);
+    db->schema.free_page_head = *((uint32_t*)page); // next free
+    return page_num;
+}
+
+void set_page_free(Database *db, uint32_t page_num) 
+{
+    void *node = get_page(db->pager, page_num);
+    uint32_t num_keys, child;
+    
+    switch (get_node_type(node)) 
+    {
+        case (NODE_LEAF):
+            
+            add_page_to_freelist(db, page_num);            
+            break;
+
+        case (NODE_INTERNAL):
+            num_keys = *internal_node_num_keys(node);
+            printf("- internal (size %d)\n", num_keys);
+            for (uint32_t i = 0; i < num_keys; i++) 
+            {
+                child = *internal_node_child(node, i);
+                set_page_free(db, child);
+            
+            }
+            child = *internal_node_right_child(node);
+
+            set_page_free(db, child);
+            add_page_to_freelist(db, page_num);
+            break;
+    }
+}
