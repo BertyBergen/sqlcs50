@@ -15,8 +15,8 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
 {
     if (strncmp(input_buffer->buffer, ".use", 4) == 0) 
     {
-        char* table_name = input_buffer->buffer + 5; // пропускаем ".use "
-        table_name[strcspn(table_name, "\n")] = 0;   // убираем \n
+        char* table_name = input_buffer->buffer + 5; // skip ".use "
+        table_name[strcspn(table_name, "\n")] = 0;   // clear \n
     
         Table *table = database_get_table(db, table_name);
         if (table == NULL) 

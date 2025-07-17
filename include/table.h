@@ -34,3 +34,4 @@ void database_close(Database *db);
 bool database_drop_table(Database *db, const char *table_name);
 
 #endif
+ 

@@ -42,12 +42,15 @@ Pager *pager_open(const char *filename)
     {
         pager->pages[i] = NULL;
     }
+    pager->free_page_head = 0;
+
     return pager;
 }
 
 
 void *get_page(Pager *pager, uint32_t page_num)
 {
+    
     if (page_num > MAX_PAGES)
     {
         printf("Tried to fetch page number out of bounds. %d > %d\n", page_num, MAX_PAGES);
@@ -111,20 +114,19 @@ void pager_flush(Pager *pager, uint32_t page_num)
     }
 }
 
-uint32_t get_unused_page_num(Pager *pager)  // bimap pages. We got first free page from this bitmap
+uint32_t get_unused_page_num(Pager *pager)  
 { 
-    uint8_t *bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
-
-    for (uint32_t i = 2; i < MAX_PAGES; i++)
+    if (pager->free_page_head == 0) 
     {
-        if (((bitmap[i/8]) & (1 << (1 % 8))) == 0)
-        {
-            set_page_used(pager, i);
-            return i;
-        }
+        return pager->num_pages++;
+    } 
+    else 
+    {
+        uint32_t page_num = pager->free_page_head;
+        void* page = get_page(pager, page_num);
+        pager->free_page_head = *((uint32_t*)page); // next free
+        return page_num;
     }
-    printf("No free pages left. \n");
-    exit(EXIT_FAILURE);
 }
 
 void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level) 
@@ -175,20 +177,39 @@ uint32_t get_node_max_key(Pager *pager, void *node)
     return get_node_max_key(pager, right_child);
 }
 
-int is_page_used(Pager *pager, uint32_t page_num)
+void add_page_to_freelist(Pager* pager, uint32_t page_num) 
 {
-    uint8_t *bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
-    return (bitmap[page_num / 8] >> (page_num % 8))&1;
+    void* page = get_page(pager, page_num);
+    memset(page, 0, PAGE_SIZE); // Clear whole list
+    *((uint32_t*)page) = pager->free_page_head; // Next free sheet
+    pager->free_page_head = page_num;           // update list head
 }
 
-void set_page_used(Pager *pager, uint32_t page_num)
+void set_page_free(Pager *pager, uint32_t page_num) 
 {
-    uint8_t *bitmap = (uint8_t *) get_page(pager, BITMAP_PAGE_NUM);
-    bitmap[page_num / 8] |= (1 << (page_num % 8));
-}
+    void *node = get_page(pager, page_num);
+    uint32_t num_keys, child;
+    
+    switch (get_node_type(node)) 
+    {
+        case (NODE_LEAF):
+            
+            add_page_to_freelist(pager, page_num);            
+            break;
 
-void set_page_free(Pager* pager, uint32_t page_num) 
-{
-    uint8_t* bitmap = (uint8_t*) get_page(pager, BITMAP_PAGE_NUM);
-    bitmap[page_num / 8] &= ~(1 << (page_num % 8));
+        case (NODE_INTERNAL):
+            num_keys = *internal_node_num_keys(node);
+            printf("- internal (size %d)\n", num_keys);
+            for (uint32_t i = 0; i < num_keys; i++) 
+            {
+                child = *internal_node_child(node, i);
+                set_page_free(pager, child);
+            
+            }
+            child = *internal_node_right_child(node);
+
+            set_page_free(pager, child);
+            add_page_to_freelist(pager, page_num);
+            break;
+    }
 }

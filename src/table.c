@@ -17,6 +17,7 @@ Database *database_open(const char *filename)
     if (pager->num_pages == 0)
     {
         db->schema.table_count = 0;
+        db->pager->free_page_head = 0;
         void *schema_page = get_page(pager, SCHEMA_PAGE);
         memcpy(schema_page, &(db->schema), sizeof(DatabaseSchema));
     }
@@ -30,13 +31,27 @@ Database *database_open(const char *filename)
 
 void database_create_table(Database *db, const char *name)
 {
+
+
     if (db->schema.table_count >= MAX_TABLES)
     {
         printf("Too many tables.\n");
         exit(EXIT_FAILURE);
     }
+    uint32_t root_page;
+    if (db->pager->free_page_head)
+    {
+        root_page = db->pager->free_page_head;
+        printf("ROOT PAGE %d \n", root_page);
+        void *free_page = get_page(db->pager, root_page);
+        db->pager->free_page_head = *(uint32_t*)free_page;
+    }
 
-    uint32_t root_page = db->pager->num_pages;
+    else
+    {
+        root_page = db->pager->num_pages;
+    }
+
     void *root_node = get_page(db->pager, root_page);
     initialize_leaf_node(root_node);
     set_node_root(root_node, true);
@@ -111,6 +126,7 @@ bool database_drop_table(Database *db, const char *table_name)
     {
         if (strcmp(schema->tables[i].name, table_name) == 0) 
         {
+            set_page_free(db->pager, db->schema.tables->root_page_num);
             idx = i;
             break;
         }
@@ -135,3 +151,4 @@ bool database_drop_table(Database *db, const char *table_name)
     // TODO: освободить страницы таблицы (если есть механика)
     return true;
 }
+
