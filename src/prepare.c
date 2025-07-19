@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,22 +99,42 @@ PrepareResult prepare_update(InputBuffer *input_buffer, Statement *statement)
 
 PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement) 
 {
-    if (strncmp(input_buffer->buffer, "insert", 6) == 0) 
+    char *lower = to_lowercase_cpy(input_buffer->buffer);
+    if (!lower) return PREPARE_UNRECOGNIZED_STATEMENT;
+
+    if (strncmp(lower, "insert", 6) == 0) 
     {
         return prepare_insert(input_buffer, statement);
     }
-    if (strcmp(input_buffer->buffer, "select") == 0) 
+    if (strncmp(lower, "select", 6) == 0) 
     {
         statement->type = STATEMENT_SELECT;
         return PREPARE_SUCCESS;
     }
-    if (strncmp(input_buffer->buffer, "delete", 6) == 0)
+    if (strncmp(lower, "delete", 6) == 0)
     {
         return prepare_delete(input_buffer, statement);
     }
-    if (strncmp(input_buffer->buffer, "update", 6) == 0)
+    if (strncmp(lower, "update", 6) == 0)
     {
         return prepare_update(input_buffer, statement);
     }
+    
+    free(lower);
     return PREPARE_UNRECOGNIZED_STATEMENT;
+}
+
+char *to_lowercase_cpy(char *str)
+{
+    size_t len = strlen(str);
+    char *copy = malloc(len + 1);
+    
+    if (!copy) return NULL;
+
+    for (size_t i = 0; str[i]; i++)
+    {
+        copy[i] = tolower(str[i]);
+    }
+    copy[len] = '\0';
+    return copy;
 }

@@ -28,6 +28,9 @@ typedef struct {
 
 ExecuteResult execute_insert(Statement* statement, Table* table);
 ExecuteResult execute_select(Database* db);
+ExecuteResult execute_delete(Statement *statement, Table *table);
+ExecuteResult execute_update(Statement *statement, Table *table);
+
 ExecuteResult execute_statement(Statement* statement, Database *db);
 
 #endif
