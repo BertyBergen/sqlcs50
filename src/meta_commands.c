@@ -113,6 +113,28 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer, Database *db)
 
         return META_COMMAND_SUCCESS;
     }
+    else if (strcmp(input_buffer->buffer, ".show") == 0) 
+    {
+        if (db->current_table == NULL)
+        {
+            printf("Table not selected.\n");
+        }
+        else
+        {
+            uint32_t root = db->current_table->root_page_num;
+            const char *name = NULL;
+            for (uint32_t i = 0; i < db->schema.table_count; i++) 
+            {
+                if (db->schema.tables[i].root_page_num == root) 
+                {
+                    name = db->schema.tables[i].name;
+                    printf("Current table: %s (root page: %u)\n", name, root);
+                    break;
+                }
+            }
+        }
+        return META_COMMAND_SUCCESS;
+    }
      
     else 
     {

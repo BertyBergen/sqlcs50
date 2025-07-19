@@ -24,7 +24,7 @@ The project is educational - no third-pary librares, no magic, just C and bytes
 - Soft deletion of rows (DELETE with is_deleted flag)
 - Custom B-Tree
 - Serialization of rows and binary file storage
-- Meta-commands: `.help`, `.exit`, `.btree`, `.constants`
+- Meta-commands: `.help`,`.use`, `.exit`,`.quit`,`.tables`,`.drop`, `.btree`, `.constants`
 
 ## Build and Run
 
@@ -38,13 +38,13 @@ $ ./sqlcs50 mydb.db
 sqlcs50 version 0.1
 Enter ".help" for commands.
 
-> insert 1 illidan illidan@outland.com;
+> insert 1 devon devon@outland.com;
 > select;
-(1, illidan, illidan@outland.com)
+(1, devon, devon@outland.com)
 
-> update 1 illidan stormrage@outland.com;
+> update 1 devon norton@outland.com;
 > select;
-(1, illidan, stormrage@outland.com)
+(1, devon, norton@outland.com)
 
 > delete 1;
 > select;
