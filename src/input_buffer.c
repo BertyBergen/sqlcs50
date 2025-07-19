@@ -6,7 +6,7 @@
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = malloc(sizeof(InputBuffer));
     if (input_buffer == NULL) {
-        // Обработка ошибки, например, завершение программы
+        
         exit(1); 
     }
     input_buffer->buffer = NULL;
@@ -48,15 +48,15 @@ ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
         *lineptr = malloc(*n);
         if (*lineptr == NULL) 
         {
-            return -1;  // Ошибка выделения памяти
+            return -1;  
         }
     }
 
     
     char *ptr = *lineptr;
     int c = 0;
-    size_t i = 0;  // Используем size_t для индекса
-    ptr[i] = 0; // Используем, для правильной стилизации инпута. 
+    size_t i = 0;  
+    ptr[i] = 0; // Используем, для правильной стилизации input. 
 
     bool new_command = true;
 
@@ -92,26 +92,26 @@ ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
             if (i > 1)
             {
 
-                ptr[i++] = ' '; // Ставим пробелы, чтобы можно было потом удобнее спарсить значения. 
+                ptr[i++] = ' ';  
             }
             continue;
         }
 
-        if (i + 1 >= *n) {  // Если буфер переполнен
-            *n *= 2;  // Увеличиваем размер буфера
+        if (i + 1 >= *n) {  
+            *n *= 2;  
             *lineptr = realloc(*lineptr, *n);
             if (*lineptr == NULL) {
-                return -1;  // Ошибка перераспределения памяти
+                return -1;  
             }
-            ptr = *lineptr;  // Обновляем указатель на строку
+            ptr = *lineptr;  
         }
         ptr[i++] = c;
     }
 
-    if (c == EOF && i == 0) {  // Если не было считано ни одного символа
+    if (c == EOF && i == 0) {  
         return -1;
     }
 
-    ptr[i++] = '\0';  // Завершаем строку символом '\0'
-    return i;  // Возвращаем количество считанных байт
+    ptr[i++] = '\0';  
+    return i;  
 }

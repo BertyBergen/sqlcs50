@@ -179,7 +179,6 @@ void internal_node_insert(Table *table, uint32_t parent_page_num, uint32_t child
     and immediately calling internal_node_split_and_insert has the effect
     of creating a new key at (max_cells + 1) with an uninitialized value
     */
-   // Увеличиваем количество ключей
    *internal_node_num_keys(parent) = original_num_keys + 1;
 
    if (child_max_key > get_node_max_key(table->pager, right_child)) 
@@ -216,19 +215,7 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     uint32_t child_max = get_node_max_key(table->pager, child);
     // Выделяем новую страницу для нового узла
     uint32_t new_page_num = get_unused_page_num(table->pager);
-    
-    /*
-    Объявление флага перед обновлением указателей, который 
-    записывает, включает ли эта операция разделение корня -
-    если это так, мы вставим наш новый созданный узел во время
-    шага, на котором создается новый корень таблицы. Если это не так, мы должны вставить новый созданный узел в его родительский
-    после того, как ключи старого узла были переданы. Мы не
-    можем сделать это, если родительский узел нового созданного узла не является новым
-    инициализированным корневым узлом, потому что в этом случае его родительский узел может иметь существующие
-    ключи помимо нашего старого узла, который мы разделяем. Если это так, нам
-    нужно найти место для нашего нового созданного узла в его родительском узле, и мы
-    не можем вставить его по правильному индексу, если у него еще нет никаких ключей
-    */
+
     // Проверяем, сплитим ли корень
     uint32_t splitting_root = is_node_root(old_node);
 
@@ -241,11 +228,7 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
         create_new_root(table, new_page_num);
         parent = get_page(table->pager, table->root_page_num);
         // После создания нового корня, обновляем old_node (он теперь левый ребенок нового корня)
-        /*
-        If we are splitting the root, we need to update old_node to point
-        to the new root's left child, new_page_num will already point to
-        the new root's right child
-        */
+       
         old_page_num = *internal_node_child(parent, 0);
         old_node = get_page(table->pager, old_page_num);
     } 
@@ -286,7 +269,7 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     *internal_node_right_child(old_node) = *internal_node_child(old_node, *old_num_keys - 1);
     (*old_num_keys)--;
 
-    // Определяем, куда нужно вставить новый дочерний узел: в старый или в новый
+    // Определяем, куда нужно вставить новый дочерний узел
     uint32_t max_after_split = get_node_max_key(table->pager, old_node);
     uint32_t destination_page_num = (child_max < max_after_split) ? old_page_num : new_page_num;
 
@@ -294,7 +277,7 @@ void internal_node_split_and_insert(Table* table, uint32_t parent_page_num, uint
     internal_node_insert(table, destination_page_num, child_page_num);
     *node_parent(child) = destination_page_num;
 
-    // Обновляем ключ в родителе: old_max → новый максимум в old_node
+    // Обновляем ключ в родителе
     update_internal_node_key(parent, old_max, get_node_max_key(table->pager, old_node));
 
     if (!splitting_root) 
